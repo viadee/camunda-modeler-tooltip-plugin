@@ -4,7 +4,7 @@ var $ = require('jquery');
 var _ = require('lodash');
 
 
-// start-up behaviour
+// start-up behaviour (> 'npm run bundle' afterwards)
 //   true: tooltip-plugin  enabled at start-up
 //  false: tooltip-plugin disabled at start-up
 var TOOLTIP_INFOS_ENABLED = true;
@@ -103,8 +103,10 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
     if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
     if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
     if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
-    if (type == 'bpmn:StartEvent') evaluateStartEvent(element, lines);
-    if (type == 'bpmn:EndEvent') evaluateEndEvent(element, lines);
+    if (type == 'bpmn:StartEvent' 
+          || type == 'bpmn:EndEvent' 
+          || type == 'bpmn:IntermediateCatchEvent' 
+          || type == 'bpmn:IntermediateThrowEvent') evaluateEvents(element, lines);
 
     return addHeaderRemoveEmptyLinesAndFinalize('Details', lines);
   }
@@ -127,10 +129,6 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
       if (element.businessObject.loopCharacteristics.completionCondition != undefined) {
         lines.push(tooltipLineText('Completion Condition', element.businessObject.loopCharacteristics.completionCondition.body));
       }
-
-      //lines.push(tooltipLineText("MI Async. Before", element.businessObject.loopCharacteristics.asyncBefore ? _html_ok : _html_nok));
-      //lines.push(tooltipLineText("MI Async. After", element.businessObject.loopCharacteristics.asyncAfter ? _html_ok : _html_nok));
-      //lines.push(tooltipLineText("MI Exclusive", element.businessObject.loopCharacteristics.exclusive ? _html_ok : _html_nok));
 
       if (element.businessObject.loopCharacteristics.extensionElements != undefined
         && element.businessObject.loopCharacteristics.extensionElements.values != undefined) {
@@ -367,65 +365,9 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
   }
 
   /**
-   * evaluate start-events
+   * evaluate events
    */
-  function evaluateStartEvent(element, lines) {
-    if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') != undefined) {
-      var eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
-      if (eventDefinition.messageRef != undefined) {
-        // lines.push(tooltipLineText('Message', eventDefinition.messageRef.id));
-        lines.push(tooltipLineText('Message Name', eventDefinition.messageRef.name));
-      }
-    }
-
-    if (findEventDefinitionType(element, 'bpmn:TimerEventDefinition') != undefined) {
-      var eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
-      if (eventDefinition.timeDate != undefined) {
-        lines.push(tooltipLineText('Timer', 'Date'));
-        lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDate.body));
-      }
-      if (eventDefinition.timeDuration != undefined) {
-        lines.push(tooltipLineText('Timer', 'Duration'));
-        lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDuration.body));
-      }
-      if (eventDefinition.timeCycle != undefined) {
-        lines.push(tooltipLineText('Timer', 'Cycle'));
-        lines.push(tooltipLineText('Timer Definition', eventDefinition.timeCycle.body));
-      }
-    }
-
-    if (findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition') != undefined) {
-      var eventDefinition = findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition');
-      lines.push(tooltipLineText('Variable Name', eventDefinition.variableName));
-      if (eventDefinition.condition != undefined && eventDefinition.condition.language != undefined) {
-        lines.push(tooltipLineText('Condition Type', 'Script'));
-        lines.push(tooltipLineText('Script Format', eventDefinition.condition.language));
-        if (eventDefinition.condition.resource != undefined) {
-          lines.push(tooltipLineText('Script Type', 'External Resource'));
-          lines.push(tooltipLineText('Resource', eventDefinition.condition.resource));
-        } else {
-          lines.push(tooltipLineText('Script Type', 'Inline Script'));
-          lines.push(tooltipLineCode('Script', eventDefinition.condition.body));
-        }
-      }
-    }
-
-    if (findEventDefinitionType(element, 'bpmn:SignalEventDefinition') != undefined) {
-      var eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
-      if (eventDefinition.signalRef != undefined) {
-        // lines.push(tooltipLineText('Signal', eventDefinition.signalRef.id));
-        lines.push(tooltipLineText('Signal Name', eventDefinition.signalRef.name));
-      }
-    }
-
-    lines.push(tooltipLineText('Initiator', element.businessObject.initiator));
-  }
-
-
-  /**
-   * evaluate end-events
-   */
-  function evaluateEndEvent(element, lines) {
+  function evaluateEvents(element, lines) {
     if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') != undefined) {
       var eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
       if (eventDefinition.class != undefined) {
@@ -493,6 +435,44 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
         lines.push(tooltipLineText('Signal Name', eventDefinition.signalRef.name));
       }
     }
+
+    if (findEventDefinitionType(element, 'bpmn:TimerEventDefinition') != undefined) {
+      var eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
+      if (eventDefinition.timeDate != undefined) {
+        lines.push(tooltipLineText('Timer', 'Date'));
+        lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDate.body));
+      }
+      if (eventDefinition.timeDuration != undefined) {
+        lines.push(tooltipLineText('Timer', 'Duration'));
+        lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDuration.body));
+      }
+      if (eventDefinition.timeCycle != undefined) {
+        lines.push(tooltipLineText('Timer', 'Cycle'));
+        lines.push(tooltipLineText('Timer Definition', eventDefinition.timeCycle.body));
+      }
+    }
+
+    if (findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition') != undefined) {
+      var eventDefinition = findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition');
+      lines.push(tooltipLineText('Variable Name', eventDefinition.variableName));
+      lines.push(tooltipLineText('Variable Event', eventDefinition.variableEvent));
+      if (eventDefinition.condition != undefined && eventDefinition.condition.language != undefined) {
+        lines.push(tooltipLineText('Condition Type', 'Script'));
+        lines.push(tooltipLineText('Script Format', eventDefinition.condition.language));
+        if (eventDefinition.condition.resource != undefined) {
+          lines.push(tooltipLineText('Script Type', 'External Resource'));
+          lines.push(tooltipLineText('Resource', eventDefinition.condition.resource));
+        } else {
+          lines.push(tooltipLineText('Script Type', 'Inline Script'));
+          lines.push(tooltipLineCode('Script', eventDefinition.condition.body));
+        }
+      } else {
+        lines.push(tooltipLineText('Condition Type', 'Expression'));
+        lines.push(tooltipLineCode('Expression', eventDefinition.condition.body));
+      }
+    }
+
+    lines.push(tooltipLineText('Initiator', element.businessObject.initiator));
   }
 
 
@@ -665,7 +645,9 @@ const supportedTypes = [
   'bpmn:Task',
   'bpmn:UserTask',
   'bpmn:StartEvent',
-  'bpmn:EndEvent'
+  'bpmn:EndEvent',
+  'bpmn:IntermediateCatchEvent',
+  'bpmn:IntermediateThrowEvent'
 ];
 
 TooltipInfoService.$inject = [
