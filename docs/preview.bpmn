@@ -94,7 +94,7 @@ true;</bpmn:condition>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1dk5e7g">
       <bpmndi:BPMNShape id="Participant_09zuoo3_di" bpmnElement="Participant_09zuoo3" isHorizontal="true">
-        <dc:Bounds x="160" y="50" width="848" height="640" />
+        <dc:Bounds x="120" y="50" width="1000" height="640" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0662ycu_di" bpmnElement="Flow_0662ycu">
         <di:waypoint x="638" y="610" />
