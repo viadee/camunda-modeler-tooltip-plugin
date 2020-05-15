@@ -2,6 +2,13 @@
   "name": "camunda-modeler-tooltip-plugin",
   "version": "0.0.1",
   "description": "add tooltips to various BPMN-elements revealing technical properties",
+  "keywords": [
+    "camunda",
+    "modeler",
+    "plugin",
+    "tooltips",
+    "properties"
+  ],
   "main": "index.js",
   "scripts": {
     "bundle": "webpack",
