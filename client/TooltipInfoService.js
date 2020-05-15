@@ -468,7 +468,7 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
           lines.push(tooltipLineText('Resource', eventDefinition.condition.resource));
         } else {
           lines.push(tooltipLineText('Script Type', 'Inline Script'));
-          lines.push(tooltipLineCode('Script', eventDefinition.condition.body));
+          lines.push(tooltipLineCode('Script', eventDefinition.condition.body.replace(/(?:\r\n|\r|\n)/g, '<br />')));
         }
       } else {
         lines.push(tooltipLineText('Condition Type', 'Expression'));
