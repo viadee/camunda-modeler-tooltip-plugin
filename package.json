@@ -1,0 +1,30 @@
+{
+  "name": "camunda-modeler-tooltip-plugin",
+  "version": "0.0.1",
+  "description": "add tooltips to various BPMN-elements revealing technical properties",
+  "main": "index.js",
+  "scripts": {
+    "bundle": "webpack",
+    "dev": "webpack -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Florian Runschke",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/viadee/camunda-modeler-tooltip-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/viadee/camunda-modeler-tooltip-plugin/issues"
+  },
+  "homepage": "https://github.com/viadee/camunda-modeler-tooltip-plugin",
+  "devDependencies": {
+    "camunda-modeler-plugin-helpers": "^3.1.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1",
+    "lodash": "^4.17.15"
+  }
+}
