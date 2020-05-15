@@ -106,7 +106,8 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
     if (type == 'bpmn:StartEvent' 
           || type == 'bpmn:EndEvent' 
           || type == 'bpmn:IntermediateCatchEvent' 
-          || type == 'bpmn:IntermediateThrowEvent') evaluateEvents(element, lines);
+          || type == 'bpmn:IntermediateThrowEvent'
+          || type == 'bpmn:BoundaryEvent') evaluateEvents(element, lines);
 
     return addHeaderRemoveEmptyLinesAndFinalize('Details', lines);
   }
@@ -407,6 +408,7 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
         // lines.push(tooltipLineText('Escalation', eventDefinition.escalationRef.id));
         lines.push(tooltipLineText('Escalation Name', eventDefinition.escalationRef.name));
         lines.push(tooltipLineText('Escalation Code', eventDefinition.escalationRef.escalationCode));
+        lines.push(tooltipLineText('Escalation Code Variable', eventDefinition.escalationCodeVariable));
       }
     }
 
@@ -417,6 +419,8 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
         lines.push(tooltipLineText('Error Name', eventDefinition.errorRef.name));
         lines.push(tooltipLineText('Error Code', eventDefinition.errorRef.errorCode));
         lines.push(tooltipLineText('Error Message', eventDefinition.errorRef.errorMessage));
+        lines.push(tooltipLineText('Error Code Variable', eventDefinition.errorCodeVariable));
+        lines.push(tooltipLineText('Error Message Variable', eventDefinition.errorMessageVariable));
       }
     }
 
@@ -647,7 +651,8 @@ const supportedTypes = [
   'bpmn:StartEvent',
   'bpmn:EndEvent',
   'bpmn:IntermediateCatchEvent',
-  'bpmn:IntermediateThrowEvent'
+  'bpmn:IntermediateThrowEvent',
+  'bpmn:BoundaryEvent'
 ];
 
 TooltipInfoService.$inject = [
