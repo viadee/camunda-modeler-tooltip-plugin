@@ -1,0 +1,72 @@
+.tooltip {
+  position: relative;
+  display: none;
+  z-index: 10000;
+  opacity: 0.8;
+}
+
+.tooltip .tooltip-content {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  min-width: 150px;
+  max-width: 410px;
+  width: max-content;
+  width: -moz-max-content;
+  background-color: black;
+  color: white;
+  box-shadow: 3px 5px 10px rgba(0, 0, 0, .8);
+  /*border: 1px solid rgba(169,169,169, .8);*/
+}
+
+.tooltip .tooltip-header {
+  text-align: center;
+  font-weight: bold;
+}
+
+.tooltip .tooltip-subheader {
+  font-weight: bold;
+  font-style: italic;
+  margin-bottom: 0.3em;
+}
+
+.tooltip .tooltip-container {
+  border-bottom: 1px grey solid;
+  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.tooltip .tooltip-line {
+  padding-left: 0.75em;
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+}
+
+.tooltip-line .tooltip-key {
+  color: lightgrey;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.tooltip-line .tooltip-value {
+  display: inline-block;
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+.tooltip-line .tooltip-value-text {
+  font-family: inherit;
+}
+
+.tooltip-line .tooltip-value-code {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.tooltip .tooltip-no-properties {
+  text-align: center;
+}
