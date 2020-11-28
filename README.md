@@ -1,6 +1,6 @@
 # camunda-modeler-tooltip-plugin
 
-[![](https://img.shields.io/badge/Camunda%20Modeler-4.2+-blue.svg)](https://github.com/camunda/camunda-modeler)
+[![](https://img.shields.io/badge/Camunda%20Modeler-4.4+-blue.svg)](https://github.com/camunda/camunda-modeler)
 [![](https://img.shields.io/github/v/release/viadee/camunda-modeler-tooltip-plugin)](https://github.com/viadee/camunda-modeler-tooltip-plugin/releases)
 [![](https://img.shields.io/github/release-date/viadee/camunda-modeler-tooltip-plugin)](https://github.com/viadee/camunda-modeler-tooltip-plugin/releases)
 [![](https://img.shields.io/github/issues/viadee/camunda-modeler-tooltip-plugin)](https://github.com/viadee/camunda-modeler-tooltip-plugin/issues)
