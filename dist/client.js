@@ -442,10 +442,10 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
       lines.push(tooltipLineText('Tenant Id', element.businessObject.caseTenantId));
     }
 
-    var businesskey = findExtensionByType(element, 'camunda:In')
-    if (businesskey != undefined) {
-      lines.push(tooltipLineText('Busineess Key', _html_ok));
-      lines.push(tooltipLineCode('Busineess Key Expression', businesskey.businessKey));
+    var bk = findBusinessKey(element)
+    if (bk != undefined) {
+      lines.push(tooltipLineText('Business Key', _html_ok));
+      lines.push(tooltipLineCode('Business Key Expression', bk.businessKey));
     }
   }
 
@@ -578,13 +578,32 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
 
   /* >-- helpers for bpmn-elements --< */
 
-  function findExtensionByType(element, type) {
+  function checkExtensionElementsAvailable(element) {
     if (element == undefined
       || element.businessObject == undefined
       || element.businessObject.extensionElements == undefined
       || element.businessObject.extensionElements.values == undefined
       || element.businessObject.extensionElements.values.length == 0)
+      return false;
+
+    return true;
+  }
+
+
+  function findBusinessKey(element) {
+    if (!checkExtensionElementsAvailable(element)) return undefined;
+
+    return _.find(element.businessObject.extensionElements.values, 
+      function (value) { 
+        return value.$type == 'camunda:In' && value.businessKey != undefined 
+      });
+  }
+
+
+  function findExtensionByType(element, type) {
+    if (!checkExtensionElementsAvailable(element)) 
       return undefined;
+
     return findExtension(element.businessObject.extensionElements.values, type);
   }
 
