@@ -733,10 +733,8 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
    */
   function addListener(element, tooltipId) {
     $('[data-element-id="' + element.id + '"]')
-      .hover(
-        function () { $('#' + tooltipId).show(); },
-        function () { $('#' + tooltipId).hide(); }
-      );
+      .on('mouseenter', function () { $('#' + tooltipId).show(); })
+      .on('mouseleave', function () { $('#' + tooltipId).hide(); });
   }
 
 } // end of TooltipInfoService
