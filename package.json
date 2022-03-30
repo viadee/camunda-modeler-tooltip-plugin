@@ -1,6 +1,6 @@
 {
   "name": "camunda-modeler-tooltip-plugin",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "add tooltips to various BPMN-elements revealing technical properties",
   "keywords": [
     "camunda",
