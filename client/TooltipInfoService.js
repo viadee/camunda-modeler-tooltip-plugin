@@ -103,11 +103,11 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
     if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
     if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
     if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
-    if (type == 'bpmn:StartEvent' 
-          || type == 'bpmn:EndEvent' 
-          || type == 'bpmn:IntermediateCatchEvent' 
-          || type == 'bpmn:IntermediateThrowEvent'
-          || type == 'bpmn:BoundaryEvent') evaluateEvents(element, lines);
+    if (type == 'bpmn:StartEvent'
+      || type == 'bpmn:EndEvent'
+      || type == 'bpmn:IntermediateCatchEvent'
+      || type == 'bpmn:IntermediateThrowEvent'
+      || type == 'bpmn:BoundaryEvent') evaluateEvents(element, lines);
 
     return addHeaderRemoveEmptyLinesAndFinalize('Details', lines);
   }
@@ -143,7 +143,7 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
     return addHeaderRemoveEmptyLinesAndFinalize('Multi Instance', lines);
   }
 
-  
+
   /**
    * container for external task configuration:
    *  - external task priority
@@ -213,7 +213,7 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
         // conditional / script flows 
         var language = outgoingFlow.businessObject.conditionExpression.language;
         if (language != undefined && language.trim().length > 0) {
-          var conditionalExpression ='Script Format: ' + language.trim() + '<br />'
+          var conditionalExpression = 'Script Format: ' + language.trim() + '<br />'
           conditionalExpression += outgoingFlow.businessObject.conditionExpression.body.replace(/(?:\r\n|\r|\n)/g, '<br />') || _html_na;
           html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
         } else {
@@ -244,6 +244,57 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
     } else {
       return '';
     }
+  }
+
+  /**
+   * container for input-mappings
+   */
+  function tooltipInputMappings(element) {
+    if (element.businessObject == undefined) return '';
+
+    var inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
+
+    if (inputOutputs != undefined) {
+      var inputs = inputOutputs.inputParameters;
+      return tooltipInputOutputMappings('Inputs', inputs)
+    }
+
+    return '';
+  }
+
+  /**
+   * container for output-mappings
+   */
+  function tooltipOutputMappings(element) {
+    if (element.businessObject == undefined) return '';
+
+    var inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
+
+    if (inputOutputs != undefined) {
+      var outputs = inputOutputs.outputParameters;
+      return tooltipInputOutputMappings('Outputs', outputs)
+    }
+
+    return '';
+  }
+
+  function tooltipInputOutputMappings(label, parameters) {
+    var lines = [];
+    _.forEach(parameters, function (param) {
+      if (param.definition == undefined) {
+        // Type: String / Expression
+        lines.push(tooltipLineCodeWithFallback(param.name, param.value, ''));
+      } else {
+        // Type: List, Map, Script
+        var inputMappingType = 'unknown Type';
+        if (param.definition.$type == 'camunda:List') { inputMappingType = 'List' }
+        if (param.definition.$type == 'camunda:Map') { inputMappingType = 'Map' }
+        if (param.definition.$type == 'camunda:Script') { inputMappingType = 'Script' }
+        lines.push(tooltipLineCode(param.name, "Type: " + inputMappingType));
+      }
+    })
+
+    return addHeaderRemoveEmptyLinesAndFinalize(label, lines);
   }
 
 
@@ -497,15 +548,15 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
   function findBusinessKey(element) {
     if (!checkExtensionElementsAvailable(element)) return undefined;
 
-    return _.find(element.businessObject.extensionElements.values, 
-      function (value) { 
-        return value.$type == 'camunda:In' && value.businessKey != undefined 
+    return _.find(element.businessObject.extensionElements.values,
+      function (value) {
+        return value.$type == 'camunda:In' && value.businessKey != undefined
       });
   }
 
 
   function findExtensionByType(element, type) {
-    if (!checkExtensionElementsAvailable(element)) 
+    if (!checkExtensionElementsAvailable(element))
       return undefined;
 
     return findExtension(element.businessObject.extensionElements.values, type);
@@ -542,6 +593,17 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
   function tooltipLineCode(key, value) {
     return tooltipLineWithCss(key, value, 'tooltip-value-code');
   }
+
+  /**
+   * add a single tooltip line as 'code' 
+   */
+    function tooltipLineCodeWithFallback(key, value, fallback) {
+      if (value == undefined) {
+        return tooltipLineCode(key, fallback);
+      } else {
+        return tooltipLineCode(key, value);
+      } 
+    }
 
   /**
    * add a single tooltip line as <div> with 2 <span>, 
@@ -592,18 +654,20 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
   function buildTooltipOverlay(element, tooltipId) {
     return '<div id="' + tooltipId + '" class="tooltip"> \
               <div class="tooltip-content">'
-                + tooltipHeader(element)
-                + emptyPropertiesIfNoLines([
-                    // tooltipGeneral(element)
-                    tooltipDetails(element),
-                    tooltipMultiInstance(element),
-                    tooltipExternalTaskConfiguration(element),
-                    // tooltipAsynchronousContinuations(element)
-                    tooltipJobConfiguration(element),
-                    tooltipConditionalOutgoingSequenceFlows(element)
-                    // tooltipDocumentation(element)
-                ])
-                + '</div> \
+      + tooltipHeader(element)
+      + emptyPropertiesIfNoLines([
+        // tooltipGeneral(element)
+        tooltipDetails(element),
+        tooltipMultiInstance(element),
+        tooltipExternalTaskConfiguration(element),
+        // tooltipAsynchronousContinuations(element)
+        tooltipJobConfiguration(element),
+        tooltipConditionalOutgoingSequenceFlows(element),
+        tooltipInputMappings(element),
+        tooltipOutputMappings(element)
+        // tooltipDocumentation(element)
+      ])
+      + '</div> \
             </div>';
   }
 
