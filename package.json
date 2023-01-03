@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/viadee/camunda-modeler-tooltip-plugin",
   "devDependencies": {
-    "camunda-modeler-plugin-helpers": "^3.1.0",
+    "camunda-modeler-plugin-helpers": "^5.1.0",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1"
   },
