@@ -107,7 +107,7 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
     var lines = [];
     var type = element.businessObject.$type;
 
-    if (type === 'bpmn:ServiceTask' || type == 'bpmn:SendTask' || type == 'bpmn:BusinessRuleTask') evaluateServiceSendRuleTask(element, lines);
+    if (type === 'bpmn:ServiceTask' || type === 'bpmn:SendTask' || type === 'bpmn:BusinessRuleTask') evaluateServiceSendRuleTask(element, lines);
     if (type === 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
     if (type === 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
     if (type === 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
@@ -335,6 +335,12 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
 
     if (findExtensionByType(element, 'camunda:Connector') !== undefined) {
       lines.push(tooltipLineText('Implementation', 'Connector'));
+    }
+
+    var zeebeTask = findExtensionByType(element, 'zeebe:TaskDefinition');
+    if (zeebeTask !== undefined) {
+      lines.push(tooltipLineText('Type', zeebeTask.type ));
+      lines.push(tooltipLineText('Retries', zeebeTask.retries ));
     }
   }
 

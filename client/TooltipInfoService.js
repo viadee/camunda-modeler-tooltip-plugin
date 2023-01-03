@@ -326,6 +326,12 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
     if (findExtensionByType(element, 'camunda:Connector') !== undefined) {
       lines.push(tooltipLineText('Implementation', 'Connector'));
     }
+
+    var zeebeTask = findExtensionByType(element, 'zeebe:TaskDefinition');
+    if (zeebeTask !== undefined) {
+      lines.push(tooltipLineText('Type', zeebeTask.type ));
+      lines.push(tooltipLineText('Retries', zeebeTask.retries ));
+    }
   }
 
   /**
