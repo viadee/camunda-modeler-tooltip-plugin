@@ -67,23 +67,10 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
    * add tooltip header
    */
   function tooltipHeader(element) {
+    // .split(':')[1] is used to transform 'bpmn:ServiceTask' into 'ServiceTask'
     return '<div class="tooltip-header"> \
               <div class="tooltip-container">'+ element.type.split(':')[1] + '</div>\
             </div>';
-  }
-
-  /**
-   * container for external task configuration:
-   *  - name, id
-   * 
-   * properties not really needed in popup
-   */
-  function tooltipGeneral(element) {
-    return '<div class="tooltip-container"> \
-              <div class="tooltip-subheader">General</div>'
-      + tooltipLineText("Id", element.id)
-      + tooltipLineText("Name", element.businessObject.name)
-      + '</div>';
   }
 
   /**
@@ -113,217 +100,38 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
   }
 
   /**
-   * container for multi-instance:
-   *  - properties depending multi-instance configuration
-   *  - e.g. collection, element variable
-   */
-  function tooltipMultiInstance(element) {
-    var lines = [];
-
-    if (element.businessObject.loopCharacteristics != undefined) {
-      lines.push(tooltipLineText('Multi Instance', element.businessObject.loopCharacteristics.isSequential ? 'sequential' : 'parallel'));
-      if (element.businessObject.loopCharacteristics.loopCardinality != undefined) {
-        lines.push(tooltipLineText('Loop Cardinality', element.businessObject.loopCharacteristics.loopCardinality.body));
-      }
-      lines.push(tooltipLineText('Collection', element.businessObject.loopCharacteristics.collection));
-      lines.push(tooltipLineText('Element Variable', element.businessObject.loopCharacteristics.elementVariable));
-      if (element.businessObject.loopCharacteristics.completionCondition != undefined) {
-        lines.push(tooltipLineText('Completion Condition', element.businessObject.loopCharacteristics.completionCondition.body));
-      }
-
-      if (element.businessObject.loopCharacteristics.extensionElements != undefined
-        && element.businessObject.loopCharacteristics.extensionElements.values != undefined) {
-        var extensionElement = findExtension(element.businessObject.loopCharacteristics.extensionElements.values, 'camunda:FailedJobRetryTimeCycle')
-        if (extensionElement != undefined) {
-          lines.push(tooltipLineText("MI Retry Time Cycle", extensionElement.body));
-        }
-      }
-    }
-
-    return addHeaderRemoveEmptyLinesAndFinalize('Multi Instance', lines);
-  }
-
-
-  /**
-   * container for external task configuration:
-   *  - external task priority
-   */
-  function tooltipExternalTaskConfiguration(element) {
-    if (element.businessObject == undefined) return '';
-    var lines = [];
-    lines.push(tooltipLineText('Task Priority', element.businessObject.taskPriority));
-    return addHeaderRemoveEmptyLinesAndFinalize('External Task Configuration', lines);
-  }
-
-  /**
-   * container for asynchronous continuations:
-   *  - async before/after indicators
-   */
-  function tooltipAsynchronousContinuations(element) {
-    return '<div class="tooltip-container"> \
-              <div class="tooltip-subheader">Asynchronous Continuations</div>'
-      + tooltipLineText("Asynch. Before", element.businessObject.asyncBefore ? _html_ok : _html_nok)
-      + tooltipLineText("Asynch. After", element.businessObject.asyncAfter ? _html_ok : _html_nok)
-      + tooltipLineText("Exclusive", element.businessObject.exclusive ? _html_ok : _html_nok)
-      + '</div>';
-  }
-
-  /**
-   * container for job configuration:
-   *  - job priority, retry behaviour
-   */
-  function tooltipJobConfiguration(element) {
-    if (element.businessObject == undefined) return '';
-
-    var lines = [];
-    lines.push(tooltipLineText('Job Priority', element.businessObject.jobPriority));
-
-    var retryTimeCycle = findExtensionByType(element, 'camunda:FailedJobRetryTimeCycle')
-    if (retryTimeCycle != undefined) {
-      lines.push(tooltipLineText('Retry Time Cycle', retryTimeCycle.body));
-    }
-
-    return addHeaderRemoveEmptyLinesAndFinalize('Job Configuration', lines);
-  }
-
-  /**
-   * container for conditional sequence flows:
-   *  - evaluate outgoing sequence flows, if they are conditional or default
-   */
-  function tooltipConditionalOutgoingSequenceFlows(element) {
-    if (element.outgoing == undefined || element.outgoing.length <= 1) return '';
-
-    var html = '<div class="tooltip-container"> \
-                  <div class="tooltip-subheader">Conditional Sequence-Flows</div>';
-
-    if (element.businessObject.default != undefined) {
-      var defaultFlow = element.businessObject.default.id;
-    }
-
-    _.each(element.outgoing, function (outgoingFlow) {
-      if (outgoingFlow.id == defaultFlow) {
-        // default flow (there is only one)
-        html += tooltipLineText(outgoingFlow.businessObject.name || _html_na, 'default');
-
-      } else if (outgoingFlow.businessObject.conditionExpression == undefined) {
-        // no expression given
-        html += tooltipLineText(outgoingFlow.businessObject.name || _html_na, _html_na);
-
-      } else {
-        // conditional / script flows 
-        var language = outgoingFlow.businessObject.conditionExpression.language;
-        if (language != undefined && language.trim().length > 0) {
-          var conditionalExpression = 'Script Format: ' + language.trim() + '<br />'
-          conditionalExpression += outgoingFlow.businessObject.conditionExpression.body.replace(/(?:\r\n|\r|\n)/g, '<br />') || _html_na;
-          html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
-        } else {
-          var conditionalExpression = outgoingFlow.businessObject.conditionExpression.body || _html_na;
-          html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
-        }
-      }
-    });
-
-    return html += '</div>';
-  }
-
-  /**
-   * container for documentation:
-   * indicates whether documentation is present or not, 
-   * it does not show the documentation itself!
-   */
-  function tooltipDocumentation(element) {
-    if (element.businessObject.documentation !== undefined &&
-      element.businessObject.documentation.length > 0 &&
-      element.businessObject.documentation[0].text.trim().length > 0) {
-
-      return '<div class="tooltip-container"> \
-           <div class="tooltip-subheader">Documentation</div>'
-        + tooltipLineText("Element Documentation", _html_ok)
-        + '</div>';
-
-    } else {
-      return '';
-    }
-  }
-
-  /**
-   * container for input-mappings
-   */
-  function tooltipInputMappings(element) {
-    if (element.businessObject == undefined) return '';
-
-    var inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
-
-    if (inputOutputs != undefined) {
-      var inputs = inputOutputs.inputParameters;
-      return tooltipInputOutputMappings('Inputs', inputs)
-    }
-
-    return '';
-  }
-
-  /**
-   * container for output-mappings
-   */
-  function tooltipOutputMappings(element) {
-    if (element.businessObject == undefined) return '';
-
-    var inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
-
-    if (inputOutputs != undefined) {
-      var outputs = inputOutputs.outputParameters;
-      return tooltipInputOutputMappings('Outputs', outputs)
-    }
-
-    return '';
-  }
-
-  function tooltipInputOutputMappings(label, parameters) {
-    var lines = [];
-    _.forEach(parameters, function (param) {
-      if (param.definition == undefined) {
-        // Type: String / Expression
-        lines.push(tooltipLineCodeWithFallback(param.name, param.value, ''));
-      } else {
-        // Type: List, Map, Script
-        var inputMappingType = 'unknown Type';
-        if (param.definition.$type == 'camunda:List') { inputMappingType = 'List' }
-        if (param.definition.$type == 'camunda:Map') { inputMappingType = 'Map' }
-        if (param.definition.$type == 'camunda:Script') { inputMappingType = 'Script' }
-        lines.push(tooltipLineCode(param.name, "Type: " + inputMappingType));
-      }
-    })
-
-    return addHeaderRemoveEmptyLinesAndFinalize(label, lines);
-  }
-
-
-  /**
    * evaluate service-/send-/rule-tasks
    */
   function evaluateServiceSendRuleTask(element, lines) {
-    if (element.businessObject.class != undefined) {
+
+    // TODO
+    // get topic from c8 model
+    // console.log(element.businessObject.extensionElements.values[0].type)
+    // get number of retries from c8 model
+    // console.log(element.businessObject.extensionElements.values[0].retries)
+
+    if (element.businessObject.class !== undefined) {
       lines.push(tooltipLineText('Implementation', 'Java Class'));
       lines.push(tooltipLineCode('Class', element.businessObject.class));
     }
 
-    if (element.businessObject.expression != undefined) {
+    if (element.businessObject.expression !== undefined) {
       lines.push(tooltipLineText('Implementation', 'Expression'));
       lines.push(tooltipLineCode('Expression', element.businessObject.expression));
       lines.push(tooltipLineText('Result Variable', element.businessObject.resultVariable));
     }
 
-    if (element.businessObject.delegateExpression != undefined) {
+    if (element.businessObject.delegateExpression !== undefined) {
       lines.push(tooltipLineText('Implementation', 'Delegate Expression'));
       lines.push(tooltipLineCode('Delegate Expression', element.businessObject.delegateExpression));
     }
 
-    if (element.businessObject.type != undefined) {
+    if (element.businessObject.type !== undefined) {
       lines.push(tooltipLineText('Implementation', 'External'));
       lines.push(tooltipLineCode('Topic', element.businessObject.topic));
     }
 
-    if (findExtensionByType(element, 'camunda:Connector') != undefined) {
+    if (findExtensionByType(element, 'camunda:Connector') !== undefined) {
       lines.push(tooltipLineText('Implementation', 'Connector'));
     }
   }
@@ -639,7 +447,7 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
   function emptyPropertiesIfNoLines(lines) {
     var final = _.without(lines, "");
     if (final.length == 0) {
-      return `<div class="tooltip-no-properties ">${_html_no_properties_found}</div>`;
+      return `<div class="tooltip-no-properties">${_html_no_properties_found}</div>`;
     }
     return final.join('');
   }
@@ -656,16 +464,7 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
               <div class="tooltip-content">'
       + tooltipHeader(element)
       + emptyPropertiesIfNoLines([
-        // tooltipGeneral(element)
-        tooltipDetails(element),
-        tooltipMultiInstance(element),
-        tooltipExternalTaskConfiguration(element),
-        // tooltipAsynchronousContinuations(element)
-        tooltipJobConfiguration(element),
-        tooltipConditionalOutgoingSequenceFlows(element),
-        tooltipInputMappings(element),
-        tooltipOutputMappings(element)
-        // tooltipDocumentation(element)
+        tooltipDetails(element)
       ])
       + '</div> \
             </div>';
@@ -696,7 +495,7 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions) 
   }
 
   /**
-   * add listeners to an element, that are responsible for showing/hinding the
+   * add listeners to an element, that are responsible for showing/hiding the
    * tooltip if the cursor hovers the element
    */
   function addListener(element, tooltipId) {
