@@ -60,9 +60,9 @@ function tooltipDetails(element) {
 
   if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask') evaluateServiceSendConnectorTask(element, lines);
   if (type == 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
-
-
   if (type == 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
+
+
   if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
   if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
   if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
@@ -114,9 +114,11 @@ function evaluateBusinessRuleTask(element, lines) {
  * evaluate receive-tasks
  */
 function evaluateReceiveTask(element, lines) {
-  if (element.businessObject.messageRef != undefined) {
-    // lines.push(tooltipLineText('Message Id', element.businessObject.messageRef.id));
+  let messageRef = element.businessObject.messageRef
+  if (messageRef != undefined) {
+    let subscriptionKeyElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(messageRef.extensionElements.values, "zeebe:Subscription")
     lines.push(tooltipLineText('Message Name', element.businessObject.messageRef.name));
+    lines.push(tooltipLineText('Subscription Key', subscriptionKeyElement.correlationKey))
   }
 }
 
