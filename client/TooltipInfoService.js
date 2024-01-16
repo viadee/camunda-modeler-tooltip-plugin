@@ -25,6 +25,8 @@ const supportedTypes = [
   'bpmn:IntermediateThrowEvent',
   'bpmn:BoundaryEvent'
 ];
+const CAMUNDA_PLATFORM_EXECUTION_PLATFORM = "Camunda Platform"
+const CAMUNDA_CLOUD_EXECUTION_PLATFORM = "Camunda Cloud"
 
 let elementOverlays = [];
 let TOOLTIP_INFOS_ENABLED = true;
@@ -103,12 +105,12 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions, 
   }
 
   function addTooltipDependingOnExecutionPlatform(element, id) {
-    let executionPlatform = canvas.getRootElement().businessObject.$parent.$attrs['modeler:executionPlatform']
-    if (executionPlatform === "Camunda Platform") {
+    let platformOfSelectedModel = canvas.getRootElement().businessObject.$parent.$attrs['modeler:executionPlatform']
+    if (CAMUNDA_PLATFORM_EXECUTION_PLATFORM === platformOfSelectedModel) {
       console.log('Analyzing C7 Model...')
       C7.addTooltip(elementOverlays, overlays, element, id)
     }
-    if (executionPlatform === "Camunda Cloud") {
+    if (CAMUNDA_CLOUD_EXECUTION_PLATFORM === platformOfSelectedModel) {
       console.log('Analyzing C8 Model...')
       C8.addTooltip(elementOverlays, overlays, element, id)
     }
