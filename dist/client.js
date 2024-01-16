@@ -61,9 +61,9 @@ function tooltipDetails(element) {
   if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask') evaluateServiceSendConnectorTask(element, lines);
   if (type == 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
   if (type == 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
-
-
   if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
+
+  // TODO
   if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
   if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
   if (type == 'bpmn:StartEvent'
@@ -79,7 +79,6 @@ function tooltipDetails(element) {
  * evaluate service-/send-/connector-tasks
  */
 function evaluateServiceSendConnectorTask(element, lines) {
-  console.log(element)
   let taskDefinitionExtension = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:TaskDefinition")
   let implementationType = element.businessObject.modelerTemplate === undefined ?
       'External' : 'Connector'
@@ -115,6 +114,7 @@ function evaluateBusinessRuleTask(element, lines) {
  */
 function evaluateReceiveTask(element, lines) {
   let messageRef = element.businessObject.messageRef
+
   if (messageRef != undefined) {
     let subscriptionKeyElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(messageRef.extensionElements.values, "zeebe:Subscription")
     lines.push(tooltipLineText('Message Name', element.businessObject.messageRef.name));
@@ -126,15 +126,19 @@ function evaluateReceiveTask(element, lines) {
  * evaluate script-tasks
  */
 function evaluateScriptTask(element, lines) {
-  lines.push(tooltipLineText('Script Format', element.businessObject.scriptFormat));
-  if (element.businessObject.resource != undefined) {
-    lines.push(tooltipLineText('Script Type', 'External Resource'));
-    lines.push(tooltipLineText('Resource', element.businessObject.resource));
-  } else {
-    lines.push(tooltipLineText('Script Type', 'Inline Script'));
-    lines.push(tooltipLineCode('Script', element.businessObject.script));
+  let scriptTaskElementFEEL = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:Script")
+  let scriptTaskElementJobWorker = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:TaskDefinition")
+
+  if (scriptTaskElementFEEL !== undefined) {
+    lines.push(tooltipLineText('Implementation', 'FEEL'))
+    lines.push(tooltipLineText('Result Variable', scriptTaskElementFEEL.resultVariable))
+    lines.push(tooltipLineText('Expression', scriptTaskElementFEEL.expression))
   }
-  lines.push(tooltipLineText('Result Variable', element.businessObject.resultVariable));
+  if (scriptTaskElementJobWorker !== undefined) {
+    lines.push(tooltipLineText('Implementation', 'Job Worker'))
+    lines.push(tooltipLineText('Type', scriptTaskElementJobWorker.type))
+    lines.push(tooltipLineText('Retries', scriptTaskElementJobWorker.retries))
+  }
 }
 
 /**
