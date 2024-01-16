@@ -104,13 +104,13 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions, 
 
   function addTooltipDependingOnExecutionPlatform(element, id) {
     let executionPlatform = canvas.getRootElement().businessObject.$parent.$attrs['modeler:executionPlatform']
-    if (executionPlatform === "Camunda Cloud") {
-      console.log('Camunda Cloud')
-      C8.addTooltip(elementOverlays, overlays, element, id)
-    }
     if (executionPlatform === "Camunda Platform") {
-      console.log('Camunda Platform')
+      console.log('Analyzing C7 Model...')
       C7.addTooltip(elementOverlays, overlays, element, id)
+    }
+    if (executionPlatform === "Camunda Cloud") {
+      console.log('Analyzing C8 Model...')
+      C8.addTooltip(elementOverlays, overlays, element, id)
     }
   }
 
