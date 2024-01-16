@@ -55,9 +55,9 @@ function tooltipDetails(element) {
   if (type == 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
   if (type == 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
   if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
+  if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
 
   // TODO
-  if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
   if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
   if (type == 'bpmn:StartEvent'
       || type == 'bpmn:EndEvent'
@@ -138,34 +138,12 @@ function evaluateScriptTask(element, lines) {
  * evaluate call-activities
  */
 function evaluateCallActivity(element, lines) {
-  if (element.businessObject.calledElement != undefined) {
-    lines.push(tooltipLineText('CallActivity Type', 'BPMN'));
-    lines.push(tooltipLineText('Called Element', element.businessObject.calledElement));
-    lines.push(tooltipLineText('Binding', element.businessObject.calledElementBinding));
-    lines.push(tooltipLineText('Version', element.businessObject.calledElementVersion));
-    lines.push(tooltipLineText('Version Tag', element.businessObject.calledElementVersionTag));
-    lines.push(tooltipLineText('Tenant Id', element.businessObject.calledElementTenantId));
-    if (element.businessObject.variableMappingDelegateExpression != undefined) {
-      lines.push(tooltipLineText('Delegate Variable Mapping', 'DelegateExpression'));
-      lines.push(tooltipLineCode('Delegate Expression', element.businessObject.variableMappingDelegateExpression));
-    }
-    if (element.businessObject.variableMappingClass != undefined) {
-      lines.push(tooltipLineText('Delegate Variable Mapping', 'Class'));
-      lines.push(tooltipLineCode('Class', element.businessObject.variableMappingClass));
-    }
+  let callActivityElement = findExtensionByType(element, "zeebe:CalledElement")
 
-  } else if (element.businessObject.caseRef != undefined) {
-    lines.push(tooltipLineText('CallActivity Type', 'CMMN'));
-    lines.push(tooltipLineText('Case Ref', element.businessObject.caseRef));
-    lines.push(tooltipLineText('Binding', element.businessObject.caseBinding));
-    lines.push(tooltipLineText('Version', element.businessObject.caseVersion));
-    lines.push(tooltipLineText('Tenant Id', element.businessObject.caseTenantId));
-  }
-
-  var bk = findBusinessKey(element)
-  if (bk != undefined) {
-    lines.push(tooltipLineText('Business Key', _html_ok));
-    lines.push(tooltipLineCode('Business Key Expression', bk.businessKey));
+  if (callActivityElement !== undefined) {
+    lines.push(tooltipLineText('Process ID', callActivityElement.processId));
+    lines.push(tooltipLineText('Propagation of Parent Variables', callActivityElement.propagateAllParentVariables));
+    lines.push(tooltipLineText('Propagation of Child Variables', callActivityElement.propagateAllChildVariables));
   }
 }
 
