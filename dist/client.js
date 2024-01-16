@@ -63,9 +63,9 @@ function tooltipDetails(element) {
   if (type == 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
   if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
   if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
+  if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
 
   // TODO
-  if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
   if (type == 'bpmn:StartEvent'
       || type == 'bpmn:EndEvent'
       || type == 'bpmn:IntermediateCatchEvent'
@@ -158,12 +158,19 @@ function evaluateCallActivity(element, lines) {
  * evaluate user-tasks
  */
 function evaluateUserTask(element, lines) {
-  lines.push(tooltipLineText('Assignee', element.businessObject.assignee));
-  lines.push(tooltipLineText('Candidate Users', element.businessObject.candidateUsers));
-  lines.push(tooltipLineText('Candidate Groups', element.businessObject.candidateGroups));
-  lines.push(tooltipLineText('Due Date', element.businessObject.dueDate));
-  lines.push(tooltipLineText('Follow Up Date', element.businessObject.followUpDate));
-  lines.push(tooltipLineText('Priority', element.businessObject.priority));
+  let userTaskAssignmentElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:AssignmentDefinition")
+  let userTaskScheduleElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:TaskSchedule")
+
+  if (userTaskAssignmentElement !== undefined) {
+    lines.push(tooltipLineText('Assignee', userTaskAssignmentElement.assignee))
+    lines.push(tooltipLineText('Candidate Groups', userTaskAssignmentElement.candidateGroups))
+    lines.push(tooltipLineText('Candidate Users', userTaskAssignmentElement.candidateUsers))
+  }
+  if (userTaskScheduleElement !== undefined) {
+    lines.push(tooltipLineText('Due Date', userTaskScheduleElement.dueDate))
+    lines.push(tooltipLineText('Follow Up Date', userTaskScheduleElement.followUpDate))
+
+  }
 }
 
 /**
