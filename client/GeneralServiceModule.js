@@ -36,3 +36,50 @@ export function emptyPropertiesIfNoLines(lines) {
   }
   return final.join('');
 }
+
+/**
+ *
+ * helpers fpr bpmn-elements
+ *
+ */
+
+function checkExtensionElementsAvailable(element) {
+  if (element == undefined
+      || element.businessObject == undefined
+      || element.businessObject.extensionElements == undefined
+      || element.businessObject.extensionElements.values == undefined
+      || element.businessObject.extensionElements.values.length == 0)
+    return false;
+
+  return true;
+}
+
+export function findExtensionByType(element, type) {
+  if (!checkExtensionElementsAvailable(element))
+    return undefined;
+
+  return findExtension(element.businessObject.extensionElements.values, type);
+}
+
+export function findExtension(values, type) {
+  return _.find(values, function (value) { return value.$type == type; });
+}
+
+
+export function findBusinessKey(element) {
+  if (!checkExtensionElementsAvailable(element)) return undefined;
+
+  return _.find(element.businessObject.extensionElements.values,
+      function (value) {
+        return value.$type == 'camunda:In' && value.businessKey != undefined
+      });
+}
+
+export function findEventDefinitionType(element, type) {
+  if (element == undefined
+      || element.businessObject == undefined
+      || element.businessObject.eventDefinitions == undefined
+      || element.businessObject.eventDefinitions.length == 0)
+    return undefined;
+  return _.find(element.businessObject.eventDefinitions, function (value) { return value.$type == type; });
+}

@@ -18,7 +18,6 @@ __webpack_require__.r(__webpack_exports__);
 const _ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 const _html_ok = '&#10004;';
 const _html_nok = '&#10006;';
-const DEFAULT_NUMBER_OF_RETRIES = 3
 
 /**
  * add tooltip regarding an element, using the given tooltip-id in html
@@ -59,8 +58,10 @@ function tooltipDetails(element) {
   let lines = [];
   let type = element.businessObject.$type;
 
-  if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask') evaluateServiceSendTask(element, lines);
+  if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask') evaluateServiceSendConnectorTask(element, lines);
   if (type == 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
+
+
   if (type == 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
   if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
   if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
@@ -75,36 +76,37 @@ function tooltipDetails(element) {
 }
 
 /**
- * evaluate service-/send-/rule-tasks
+ * evaluate service-/send-/connector-tasks
  */
-function evaluateServiceSendTask(element, lines) {
+function evaluateServiceSendConnectorTask(element, lines) {
+  console.log(element)
+  let taskDefinitionExtension = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:TaskDefinition")
   let implementationType = element.businessObject.modelerTemplate === undefined ?
       'External' : 'Connector'
-  let type = element.businessObject.extensionElements.values[0].type
-  let numberOfRetries = element.businessObject.extensionElements.values[0].retries === undefined ?
-      DEFAULT_NUMBER_OF_RETRIES :
-      element.businessObject.extensionElements.values[0].retries
+  lines.push(tooltipLineText('Implementation', implementationType))
 
-  lines.push(tooltipLineText('Implementation', implementationType));
-  if (type !== undefined) {
-    lines.push(tooltipLineText('Type', type))
+  if (taskDefinitionExtension !== undefined) {
+    lines.push(tooltipLineText('Type', taskDefinitionExtension.type)) // aka topic
+    lines.push(tooltipLineText('Retries', taskDefinitionExtension.retries))
   }
-  lines.push(tooltipLineText('Retries', numberOfRetries))
 }
 
 /**
  * evaluate rule-tasks
  */
 function evaluateBusinessRuleTask(element, lines) {
-  if (element.businessObject.decisionRef != undefined) {
-    lines.push(tooltipLineText('Implementation', 'DMN'));
-    lines.push(tooltipLineText('Decision Ref', element.businessObject.decisionRef));
-    lines.push(tooltipLineText('Binding', element.businessObject.decisionRefBinding));
-    lines.push(tooltipLineText('Tenant Id', element.businessObject.decisionRefTenantId));
-    if (element.businessObject.resultVariable != undefined) {
-      lines.push(tooltipLineText('Result Variable', element.businessObject.resultVariable));
-      lines.push(tooltipLineText('Map Decision Result', element.businessObject.mapDecisionResult));
-    }
+  let businessRuleTaskElementDMN = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:CalledDecision")
+  let businessRuleTaskElementJobWorker = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:TaskDefinition")
+
+  if (businessRuleTaskElementDMN !== undefined) {
+    lines.push(tooltipLineText('Implementation', 'DMN Decision'))
+    lines.push(tooltipLineText('Decision ID', businessRuleTaskElementDMN.decisionId));
+    lines.push(tooltipLineText('Result Variable', businessRuleTaskElementDMN.resultVariable));
+  }
+  if (businessRuleTaskElementJobWorker !== undefined) {
+    lines.push(tooltipLineText('Implementation', 'Job Worker'))
+    lines.push(tooltipLineText('Type', businessRuleTaskElementJobWorker.type))
+    lines.push(tooltipLineText('Retries', businessRuleTaskElementJobWorker.retries))
   }
 }
 
@@ -161,7 +163,7 @@ function evaluateCallActivity(element, lines) {
     lines.push(tooltipLineText('Tenant Id', element.businessObject.caseTenantId));
   }
 
-  var bk = findBusinessKey(element)
+  var bk = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findBusinessKey)(element)
   if (bk != undefined) {
     lines.push(tooltipLineText('Business Key', _html_ok));
     lines.push(tooltipLineCode('Business Key Expression', bk.businessKey));
@@ -184,8 +186,8 @@ function evaluateUserTask(element, lines) {
  * evaluate events
  */
 function evaluateEvents(element, lines) {
-  if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition');
     if (eventDefinition.class != undefined) {
       lines.push(tooltipLineText('Implementation', 'Java Class'));
       lines.push(tooltipLineCode('Class', eventDefinition.class));
@@ -207,7 +209,7 @@ function evaluateEvents(element, lines) {
       lines.push(tooltipLineCode('Topic', eventDefinition.topic));
     }
 
-    if (eventDefinition.extensionElements != undefined && findExtension(eventDefinition.extensionElements.values, 'camunda:Connector') != undefined) {
+    if (eventDefinition.extensionElements != undefined && (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(eventDefinition.extensionElements.values, 'camunda:Connector') != undefined) {
       lines.push(tooltipLineText('Implementation', 'Connector'));
     }
 
@@ -217,8 +219,8 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition');
     if (eventDefinition.escalationRef != undefined) {
       // lines.push(tooltipLineText('Escalation', eventDefinition.escalationRef.id));
       lines.push(tooltipLineText('Escalation Name', eventDefinition.escalationRef.name));
@@ -227,8 +229,8 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:ErrorEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:ErrorEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ErrorEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ErrorEventDefinition');
     if (eventDefinition.errorRef != undefined) {
       // lines.push(tooltipLineText('Error', eventDefinition.errorRef.id));
       lines.push(tooltipLineText('Error Name', eventDefinition.errorRef.name));
@@ -239,24 +241,24 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:CompensateEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:CompensateEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:CompensateEventDefinition');
     lines.push(tooltipLineText('Wait for Completion', eventDefinition.waitForCompletion ? _html_ok : _html_nok));
     if (eventDefinition.activityRef != undefined) {
       lines.push(tooltipLineText('Activity Ref', eventDefinition.activityRef.id));
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:SignalEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition');
     if (eventDefinition.signalRef != undefined) {
       // lines.push(tooltipLineText('Signal', eventDefinition.signalRef.id));
       lines.push(tooltipLineText('Signal Name', eventDefinition.signalRef.name));
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:TimerEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition');
     if (eventDefinition.timeDate != undefined) {
       lines.push(tooltipLineText('Timer', 'Date'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDate.body));
@@ -271,8 +273,8 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ConditionalEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ConditionalEventDefinition');
     lines.push(tooltipLineText('Variable Name', eventDefinition.variableName));
     lines.push(tooltipLineText('Variable Event', eventDefinition.variableEvent));
     if (eventDefinition.condition != undefined && eventDefinition.condition.language != undefined) {
@@ -293,54 +295,6 @@ function evaluateEvents(element, lines) {
 
   lines.push(tooltipLineText('Initiator', element.businessObject.initiator));
 }
-
-
-/* >-- helpers for bpmn-elements --< */
-
-function checkExtensionElementsAvailable(element) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.extensionElements == undefined
-      || element.businessObject.extensionElements.values == undefined
-      || element.businessObject.extensionElements.values.length == 0)
-    return false;
-
-  return true;
-}
-
-
-function findBusinessKey(element) {
-  if (!checkExtensionElementsAvailable(element)) return undefined;
-
-  return _.find(element.businessObject.extensionElements.values,
-      function (value) {
-        return value.$type == 'camunda:In' && value.businessKey != undefined
-      });
-}
-
-
-function findExtensionByType(element, type) {
-  if (!checkExtensionElementsAvailable(element))
-    return undefined;
-
-  return findExtension(element.businessObject.extensionElements.values, type);
-}
-
-
-function findExtension(values, type) {
-  return _.find(values, function (value) { return value.$type == type; });
-}
-
-
-function findEventDefinitionType(element, type) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.eventDefinitions == undefined
-      || element.businessObject.eventDefinitions.length == 0)
-    return undefined;
-  return _.find(element.businessObject.eventDefinitions, function (value) { return value.$type == type; });
-}
-
 
 /* >-- methods to assemble tooltip lines --< */
 
@@ -476,7 +430,7 @@ function tooltipMultiInstance(element) {
 
     if (element.businessObject.loopCharacteristics.extensionElements != undefined
         && element.businessObject.loopCharacteristics.extensionElements.values != undefined) {
-      var extensionElement = findExtension(element.businessObject.loopCharacteristics.extensionElements.values, 'camunda:FailedJobRetryTimeCycle')
+      var extensionElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(element.businessObject.loopCharacteristics.extensionElements.values, 'camunda:FailedJobRetryTimeCycle')
       if (extensionElement != undefined) {
         lines.push(tooltipLineText("MI Retry Time Cycle", extensionElement.body));
       }
@@ -508,7 +462,7 @@ function tooltipJobConfiguration(element) {
   var lines = [];
   lines.push(tooltipLineText('Job Priority', element.businessObject.jobPriority));
 
-  var retryTimeCycle = findExtensionByType(element, 'camunda:FailedJobRetryTimeCycle')
+  var retryTimeCycle = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:FailedJobRetryTimeCycle')
   if (retryTimeCycle != undefined) {
     lines.push(tooltipLineText('Retry Time Cycle', retryTimeCycle.body));
   }
@@ -562,7 +516,7 @@ function tooltipConditionalOutgoingSequenceFlows(element) {
 function tooltipInputMappings(element) {
   if (element.businessObject == undefined) return '';
 
-  var inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
+  var inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
 
   if (inputOutputs != undefined) {
     var inputs = inputOutputs.inputParameters;
@@ -578,7 +532,7 @@ function tooltipInputMappings(element) {
 function tooltipOutputMappings(element) {
   if (element.businessObject == undefined) return '';
 
-  var inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
+  var inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
 
   if (inputOutputs != undefined) {
     var outputs = inputOutputs.outputParameters;
@@ -633,7 +587,7 @@ function evaluateServiceSendRuleTask(element, lines) {
     lines.push(tooltipLineCode('Topic', element.businessObject.topic));
   }
 
-  if (findExtensionByType(element, 'camunda:Connector') != undefined) {
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:Connector') != undefined) {
     lines.push(tooltipLineText('Implementation', 'Connector'));
   }
 }
@@ -707,7 +661,7 @@ function evaluateCallActivity(element, lines) {
     lines.push(tooltipLineText('Tenant Id', element.businessObject.caseTenantId));
   }
 
-  var bk = findBusinessKey(element)
+  var bk = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findBusinessKey)(element)
   if (bk != undefined) {
     lines.push(tooltipLineText('Business Key', _html_ok));
     lines.push(tooltipLineCode('Business Key Expression', bk.businessKey));
@@ -730,8 +684,8 @@ function evaluateUserTask(element, lines) {
  * evaluate events
  */
 function evaluateEvents(element, lines) {
-  if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition');
     if (eventDefinition.class != undefined) {
       lines.push(tooltipLineText('Implementation', 'Java Class'));
       lines.push(tooltipLineCode('Class', eventDefinition.class));
@@ -753,7 +707,7 @@ function evaluateEvents(element, lines) {
       lines.push(tooltipLineCode('Topic', eventDefinition.topic));
     }
 
-    if (eventDefinition.extensionElements != undefined && findExtension(eventDefinition.extensionElements.values, 'camunda:Connector') != undefined) {
+    if (eventDefinition.extensionElements != undefined && (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(eventDefinition.extensionElements.values, 'camunda:Connector') != undefined) {
       lines.push(tooltipLineText('Implementation', 'Connector'));
     }
 
@@ -763,8 +717,8 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition');
     if (eventDefinition.escalationRef != undefined) {
       // lines.push(tooltipLineText('Escalation', eventDefinition.escalationRef.id));
       lines.push(tooltipLineText('Escalation Name', eventDefinition.escalationRef.name));
@@ -773,8 +727,8 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:ErrorEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:ErrorEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ErrorEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ErrorEventDefinition');
     if (eventDefinition.errorRef != undefined) {
       // lines.push(tooltipLineText('Error', eventDefinition.errorRef.id));
       lines.push(tooltipLineText('Error Name', eventDefinition.errorRef.name));
@@ -785,24 +739,24 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:CompensateEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:CompensateEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:CompensateEventDefinition');
     lines.push(tooltipLineText('Wait for Completion', eventDefinition.waitForCompletion ? _html_ok : _html_nok));
     if (eventDefinition.activityRef != undefined) {
       lines.push(tooltipLineText('Activity Ref', eventDefinition.activityRef.id));
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:SignalEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition');
     if (eventDefinition.signalRef != undefined) {
       // lines.push(tooltipLineText('Signal', eventDefinition.signalRef.id));
       lines.push(tooltipLineText('Signal Name', eventDefinition.signalRef.name));
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:TimerEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition');
     if (eventDefinition.timeDate != undefined) {
       lines.push(tooltipLineText('Timer', 'Date'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDate.body));
@@ -817,8 +771,8 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition');
+  if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ConditionalEventDefinition') != undefined) {
+    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ConditionalEventDefinition');
     lines.push(tooltipLineText('Variable Name', eventDefinition.variableName));
     lines.push(tooltipLineText('Variable Event', eventDefinition.variableEvent));
     if (eventDefinition.condition != undefined && eventDefinition.condition.language != undefined) {
@@ -839,54 +793,6 @@ function evaluateEvents(element, lines) {
 
   lines.push(tooltipLineText('Initiator', element.businessObject.initiator));
 }
-
-
-/* >-- helpers for bpmn-elements --< */
-
-function checkExtensionElementsAvailable(element) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.extensionElements == undefined
-      || element.businessObject.extensionElements.values == undefined
-      || element.businessObject.extensionElements.values.length == 0)
-    return false;
-
-  return true;
-}
-
-
-function findBusinessKey(element) {
-  if (!checkExtensionElementsAvailable(element)) return undefined;
-
-  return _.find(element.businessObject.extensionElements.values,
-      function (value) {
-        return value.$type == 'camunda:In' && value.businessKey != undefined
-      });
-}
-
-
-function findExtensionByType(element, type) {
-  if (!checkExtensionElementsAvailable(element))
-    return undefined;
-
-  return findExtension(element.businessObject.extensionElements.values, type);
-}
-
-
-function findExtension(values, type) {
-  return _.find(values, function (value) { return value.$type == type; });
-}
-
-
-function findEventDefinitionType(element, type) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.eventDefinitions == undefined
-      || element.businessObject.eventDefinitions.length == 0)
-    return undefined;
-  return _.find(element.businessObject.eventDefinitions, function (value) { return value.$type == type; });
-}
-
 
 /* >-- methods to assemble tooltip lines --< */
 
@@ -955,12 +861,12 @@ function buildTooltipOverlay(element, tooltipId) {
       + (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipHeader)(element)
       + (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.emptyPropertiesIfNoLines)([
         tooltipDetails(element),
-        tooltipMultiInstance(element),
-        tooltipExternalTaskConfiguration(element),
-        tooltipJobConfiguration(element),
-        tooltipConditionalOutgoingSequenceFlows(element),
-        tooltipInputMappings(element),
-        tooltipOutputMappings(element)
+        //tooltipMultiInstance(element),
+        //tooltipExternalTaskConfiguration(element),
+        //tooltipJobConfiguration(element),
+        //tooltipConditionalOutgoingSequenceFlows(element),
+        //tooltipInputMappings(element),
+        //tooltipOutputMappings(element)
       ])
       + '</div> \
             </div>';
@@ -978,6 +884,10 @@ function buildTooltipOverlay(element, tooltipId) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "emptyPropertiesIfNoLines": () => (/* binding */ emptyPropertiesIfNoLines),
+/* harmony export */   "findBusinessKey": () => (/* binding */ findBusinessKey),
+/* harmony export */   "findEventDefinitionType": () => (/* binding */ findEventDefinitionType),
+/* harmony export */   "findExtension": () => (/* binding */ findExtension),
+/* harmony export */   "findExtensionByType": () => (/* binding */ findExtensionByType),
 /* harmony export */   "overlay": () => (/* binding */ overlay),
 /* harmony export */   "tooltipHeader": () => (/* binding */ tooltipHeader)
 /* harmony export */ });
@@ -1022,6 +932,54 @@ function emptyPropertiesIfNoLines(lines) {
   return final.join('');
 }
 
+/**
+ *
+ * helpers fpr bpmn-elements
+ *
+ */
+
+function checkExtensionElementsAvailable(element) {
+  if (element == undefined
+      || element.businessObject == undefined
+      || element.businessObject.extensionElements == undefined
+      || element.businessObject.extensionElements.values == undefined
+      || element.businessObject.extensionElements.values.length == 0)
+    return false;
+
+  return true;
+}
+
+function findExtensionByType(element, type) {
+  if (!checkExtensionElementsAvailable(element))
+    return undefined;
+
+  return findExtension(element.businessObject.extensionElements.values, type);
+}
+
+function findExtension(values, type) {
+  return lodash__WEBPACK_IMPORTED_MODULE_0___default().find(values, function (value) { return value.$type == type; });
+}
+
+
+function findBusinessKey(element) {
+  if (!checkExtensionElementsAvailable(element)) return undefined;
+
+  return lodash__WEBPACK_IMPORTED_MODULE_0___default().find(element.businessObject.extensionElements.values,
+      function (value) {
+        return value.$type == 'camunda:In' && value.businessKey != undefined
+      });
+}
+
+function findEventDefinitionType(element, type) {
+  if (element == undefined
+      || element.businessObject == undefined
+      || element.businessObject.eventDefinitions == undefined
+      || element.businessObject.eventDefinitions.length == 0)
+    return undefined;
+  return lodash__WEBPACK_IMPORTED_MODULE_0___default().find(element.businessObject.eventDefinitions, function (value) { return value.$type == type; });
+}
+
+
 /***/ }),
 
 /***/ "./client/TooltipInfoService.js":
@@ -1058,6 +1016,8 @@ const supportedTypes = [
   'bpmn:IntermediateThrowEvent',
   'bpmn:BoundaryEvent'
 ];
+const CAMUNDA_PLATFORM_EXECUTION_PLATFORM = "Camunda Platform"
+const CAMUNDA_CLOUD_EXECUTION_PLATFORM = "Camunda Cloud"
 
 let elementOverlays = [];
 let TOOLTIP_INFOS_ENABLED = true;
@@ -1136,14 +1096,12 @@ function TooltipInfoService(eventBus, overlays, elementRegistry, editorActions, 
   }
 
   function addTooltipDependingOnExecutionPlatform(element, id) {
-    let executionPlatform = canvas.getRootElement().businessObject.$parent.$attrs['modeler:executionPlatform']
-    if (executionPlatform === "Camunda Cloud") {
-      console.log('Camunda Cloud')
-      C8.addTooltip(elementOverlays, overlays, element, id)
-    }
-    if (executionPlatform === "Camunda Platform") {
-      console.log('Camunda Platform')
+    let platformOfSelectedModel = canvas.getRootElement().businessObject.$parent.$attrs['modeler:executionPlatform']
+    if (CAMUNDA_PLATFORM_EXECUTION_PLATFORM === platformOfSelectedModel) {
       C7.addTooltip(elementOverlays, overlays, element, id)
+    }
+    if (CAMUNDA_CLOUD_EXECUTION_PLATFORM === platformOfSelectedModel) {
+      C8.addTooltip(elementOverlays, overlays, element, id)
     }
   }
 

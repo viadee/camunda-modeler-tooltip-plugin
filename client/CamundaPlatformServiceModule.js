@@ -1,5 +1,9 @@
 import {
   emptyPropertiesIfNoLines,
+  findBusinessKey,
+  findEventDefinitionType,
+  findExtension,
+  findExtensionByType,
   overlay,
   tooltipHeader
 } from "./GeneralServiceModule";
@@ -431,54 +435,6 @@ function evaluateEvents(element, lines) {
   lines.push(tooltipLineText('Initiator', element.businessObject.initiator));
 }
 
-
-/* >-- helpers for bpmn-elements --< */
-
-function checkExtensionElementsAvailable(element) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.extensionElements == undefined
-      || element.businessObject.extensionElements.values == undefined
-      || element.businessObject.extensionElements.values.length == 0)
-    return false;
-
-  return true;
-}
-
-
-function findBusinessKey(element) {
-  if (!checkExtensionElementsAvailable(element)) return undefined;
-
-  return _.find(element.businessObject.extensionElements.values,
-      function (value) {
-        return value.$type == 'camunda:In' && value.businessKey != undefined
-      });
-}
-
-
-function findExtensionByType(element, type) {
-  if (!checkExtensionElementsAvailable(element))
-    return undefined;
-
-  return findExtension(element.businessObject.extensionElements.values, type);
-}
-
-
-function findExtension(values, type) {
-  return _.find(values, function (value) { return value.$type == type; });
-}
-
-
-function findEventDefinitionType(element, type) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.eventDefinitions == undefined
-      || element.businessObject.eventDefinitions.length == 0)
-    return undefined;
-  return _.find(element.businessObject.eventDefinitions, function (value) { return value.$type == type; });
-}
-
-
 /* >-- methods to assemble tooltip lines --< */
 
 /**
@@ -546,12 +502,12 @@ function buildTooltipOverlay(element, tooltipId) {
       + tooltipHeader(element)
       + emptyPropertiesIfNoLines([
         tooltipDetails(element),
-        tooltipMultiInstance(element),
-        tooltipExternalTaskConfiguration(element),
-        tooltipJobConfiguration(element),
-        tooltipConditionalOutgoingSequenceFlows(element),
-        tooltipInputMappings(element),
-        tooltipOutputMappings(element)
+        //tooltipMultiInstance(element),
+        //tooltipExternalTaskConfiguration(element),
+        //tooltipJobConfiguration(element),
+        //tooltipConditionalOutgoingSequenceFlows(element),
+        //tooltipInputMappings(element),
+        //tooltipOutputMappings(element)
       ])
       + '</div> \
             </div>';

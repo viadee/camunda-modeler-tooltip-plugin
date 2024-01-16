@@ -1,5 +1,9 @@
 import {
   emptyPropertiesIfNoLines,
+  findBusinessKey,
+  findEventDefinitionType,
+  findExtension,
+  findExtensionByType,
   overlay,
   tooltipHeader
 } from "./GeneralServiceModule";
@@ -7,7 +11,6 @@ import {
 const _ = require("lodash");
 const _html_ok = '&#10004;';
 const _html_nok = '&#10006;';
-const DEFAULT_NUMBER_OF_RETRIES = 3
 
 /**
  * add tooltip regarding an element, using the given tooltip-id in html
@@ -48,8 +51,10 @@ function tooltipDetails(element) {
   let lines = [];
   let type = element.businessObject.$type;
 
-  if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask') evaluateServiceSendTask(element, lines);
+  if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask') evaluateServiceSendConnectorTask(element, lines);
   if (type == 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
+
+
   if (type == 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
   if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
   if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
@@ -64,36 +69,37 @@ function tooltipDetails(element) {
 }
 
 /**
- * evaluate service-/send-/rule-tasks
+ * evaluate service-/send-/connector-tasks
  */
-function evaluateServiceSendTask(element, lines) {
+function evaluateServiceSendConnectorTask(element, lines) {
+  console.log(element)
+  let taskDefinitionExtension = findExtensionByType(element, "zeebe:TaskDefinition")
   let implementationType = element.businessObject.modelerTemplate === undefined ?
       'External' : 'Connector'
-  let type = element.businessObject.extensionElements.values[0].type
-  let numberOfRetries = element.businessObject.extensionElements.values[0].retries === undefined ?
-      DEFAULT_NUMBER_OF_RETRIES :
-      element.businessObject.extensionElements.values[0].retries
+  lines.push(tooltipLineText('Implementation', implementationType))
 
-  lines.push(tooltipLineText('Implementation', implementationType));
-  if (type !== undefined) {
-    lines.push(tooltipLineText('Type', type))
+  if (taskDefinitionExtension !== undefined) {
+    lines.push(tooltipLineText('Type', taskDefinitionExtension.type)) // aka topic
+    lines.push(tooltipLineText('Retries', taskDefinitionExtension.retries))
   }
-  lines.push(tooltipLineText('Retries', numberOfRetries))
 }
 
 /**
  * evaluate rule-tasks
  */
 function evaluateBusinessRuleTask(element, lines) {
-  if (element.businessObject.decisionRef != undefined) {
-    lines.push(tooltipLineText('Implementation', 'DMN'));
-    lines.push(tooltipLineText('Decision Ref', element.businessObject.decisionRef));
-    lines.push(tooltipLineText('Binding', element.businessObject.decisionRefBinding));
-    lines.push(tooltipLineText('Tenant Id', element.businessObject.decisionRefTenantId));
-    if (element.businessObject.resultVariable != undefined) {
-      lines.push(tooltipLineText('Result Variable', element.businessObject.resultVariable));
-      lines.push(tooltipLineText('Map Decision Result', element.businessObject.mapDecisionResult));
-    }
+  let businessRuleTaskElementDMN = findExtensionByType(element, "zeebe:CalledDecision")
+  let businessRuleTaskElementJobWorker = findExtensionByType(element, "zeebe:TaskDefinition")
+
+  if (businessRuleTaskElementDMN !== undefined) {
+    lines.push(tooltipLineText('Implementation', 'DMN Decision'))
+    lines.push(tooltipLineText('Decision ID', businessRuleTaskElementDMN.decisionId));
+    lines.push(tooltipLineText('Result Variable', businessRuleTaskElementDMN.resultVariable));
+  }
+  if (businessRuleTaskElementJobWorker !== undefined) {
+    lines.push(tooltipLineText('Implementation', 'Job Worker'))
+    lines.push(tooltipLineText('Type', businessRuleTaskElementJobWorker.type))
+    lines.push(tooltipLineText('Retries', businessRuleTaskElementJobWorker.retries))
   }
 }
 
@@ -282,54 +288,6 @@ function evaluateEvents(element, lines) {
 
   lines.push(tooltipLineText('Initiator', element.businessObject.initiator));
 }
-
-
-/* >-- helpers for bpmn-elements --< */
-
-function checkExtensionElementsAvailable(element) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.extensionElements == undefined
-      || element.businessObject.extensionElements.values == undefined
-      || element.businessObject.extensionElements.values.length == 0)
-    return false;
-
-  return true;
-}
-
-
-function findBusinessKey(element) {
-  if (!checkExtensionElementsAvailable(element)) return undefined;
-
-  return _.find(element.businessObject.extensionElements.values,
-      function (value) {
-        return value.$type == 'camunda:In' && value.businessKey != undefined
-      });
-}
-
-
-function findExtensionByType(element, type) {
-  if (!checkExtensionElementsAvailable(element))
-    return undefined;
-
-  return findExtension(element.businessObject.extensionElements.values, type);
-}
-
-
-function findExtension(values, type) {
-  return _.find(values, function (value) { return value.$type == type; });
-}
-
-
-function findEventDefinitionType(element, type) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.eventDefinitions == undefined
-      || element.businessObject.eventDefinitions.length == 0)
-    return undefined;
-  return _.find(element.businessObject.eventDefinitions, function (value) { return value.$type == type; });
-}
-
 
 /* >-- methods to assemble tooltip lines --< */
 
