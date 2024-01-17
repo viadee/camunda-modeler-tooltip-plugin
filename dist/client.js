@@ -177,36 +177,20 @@ function evaluateUserTask(element, lines) {
  * evaluate events
  */
 function evaluateEvents(element, lines) {
+
+
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition');
-    if (eventDefinition.class != undefined) {
-      lines.push(tooltipLineText('Implementation', 'Java Class'));
-      lines.push(tooltipLineCode('Class', eventDefinition.class));
-    }
-
-    if (eventDefinition.expression != undefined) {
-      lines.push(tooltipLineText('Implementation', 'Expression'));
-      lines.push(tooltipLineCode('Expression', eventDefinition.expression));
-      lines.push(tooltipLineText('Result Variable', eventDefinition.resultVariable));
-    }
-
-    if (eventDefinition.delegateExpression != undefined) {
-      lines.push(tooltipLineText('Implementation', 'Delegate Expression'));
-      lines.push(tooltipLineCode('Delegate Expression', eventDefinition.delegateExpression));
-    }
-
-    if (eventDefinition.type != undefined) {
-      lines.push(tooltipLineText('Implementation', 'External'));
-      lines.push(tooltipLineCode('Topic', eventDefinition.topic));
-    }
-
-    if (eventDefinition.extensionElements != undefined && (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(eventDefinition.extensionElements.values, 'camunda:Connector') != undefined) {
-      lines.push(tooltipLineText('Implementation', 'Connector'));
-    }
-
+    console.log("jetzt " + element.type)
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition');
     if (eventDefinition.messageRef != undefined) {
-      // lines.push(tooltipLineText('Message', eventDefinition.messageRef.id));
       lines.push(tooltipLineText('Message Name', eventDefinition.messageRef.name));
+    }
+
+    let eventExtensionElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'zeebe:TaskDefinition')
+    if (eventExtensionElement != undefined) {
+      lines.push(tooltipLineText('Implementation', 'External'))
+      lines.push(tooltipLineText('Type', eventExtensionElement.type)) // aka topic
+      lines.push(tooltipLineText('Retries', eventExtensionElement.retries))
     }
   }
 
@@ -253,10 +237,6 @@ function evaluateEvents(element, lines) {
     if (eventDefinition.timeDate != undefined) {
       lines.push(tooltipLineText('Timer', 'Date'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDate.body));
-    }
-    if (eventDefinition.timeDuration != undefined) {
-      lines.push(tooltipLineText('Timer', 'Duration'));
-      lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDuration.body));
     }
     if (eventDefinition.timeCycle != undefined) {
       lines.push(tooltipLineText('Timer', 'Cycle'));
