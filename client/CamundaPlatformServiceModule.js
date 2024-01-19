@@ -58,22 +58,37 @@ function tooltipDetails(element) {
 function tooltipMultiInstance(element) {
   var lines = [];
 
-  if (element.businessObject.loopCharacteristics != undefined) {
-    lines.push(tooltipLineText('Multi Instance', element.businessObject.loopCharacteristics.isSequential ? 'sequential' : 'parallel'));
-    if (element.businessObject.loopCharacteristics.loopCardinality != undefined) {
-      lines.push(tooltipLineText('Loop Cardinality', element.businessObject.loopCharacteristics.loopCardinality.body));
-    }
-    lines.push(tooltipLineText('Collection', element.businessObject.loopCharacteristics.collection));
-    lines.push(tooltipLineText('Element Variable', element.businessObject.loopCharacteristics.elementVariable));
-    if (element.businessObject.loopCharacteristics.completionCondition != undefined) {
-      lines.push(tooltipLineText('Completion Condition', element.businessObject.loopCharacteristics.completionCondition.body));
-    }
+  if (element.businessObject.loopCharacteristics.$type != 'bpmn:StandardLoopCharacteristics') {
+    if (element.businessObject.loopCharacteristics != undefined) {
+      lines.push(tooltipLineText('Multi Instance',
+          element.businessObject.loopCharacteristics.isSequential ? 'sequential'
+              : 'parallel'));
+      if (element.businessObject.loopCharacteristics.loopCardinality
+          != undefined) {
+        lines.push(tooltipLineText('Loop Cardinality',
+            element.businessObject.loopCharacteristics.loopCardinality.body));
+      }
+      lines.push(tooltipLineText('Collection',
+          element.businessObject.loopCharacteristics.collection));
+      lines.push(tooltipLineText('Element Variable',
+          element.businessObject.loopCharacteristics.elementVariable));
+      if (element.businessObject.loopCharacteristics.completionCondition
+          != undefined) {
+        lines.push(tooltipLineText('Completion Condition',
+            element.businessObject.loopCharacteristics.completionCondition.body));
+      }
 
-    if (element.businessObject.loopCharacteristics.extensionElements != undefined
-        && element.businessObject.loopCharacteristics.extensionElements.values != undefined) {
-      var extensionElement = findExtension(element.businessObject.loopCharacteristics.extensionElements.values, 'camunda:FailedJobRetryTimeCycle')
-      if (extensionElement != undefined) {
-        lines.push(tooltipLineText("MI Retry Time Cycle", extensionElement.body));
+      if (element.businessObject.loopCharacteristics.extensionElements
+          != undefined
+          && element.businessObject.loopCharacteristics.extensionElements.values
+          != undefined) {
+        var extensionElement = findExtension(
+            element.businessObject.loopCharacteristics.extensionElements.values,
+            'camunda:FailedJobRetryTimeCycle')
+        if (extensionElement != undefined) {
+          lines.push(
+              tooltipLineText("MI Retry Time Cycle", extensionElement.body));
+        }
       }
     }
   }
@@ -513,7 +528,7 @@ function buildTooltipOverlay(element, tooltipId) {
       + tooltipHeader(element)
       + emptyPropertiesIfNoLines([
         tooltipDetails(element),
-        //tooltipMultiInstance(element),
+        tooltipMultiInstance(element),
         //tooltipExternalTaskConfiguration(element),
         //tooltipJobConfiguration(element),
         //tooltipConditionalOutgoingSequenceFlows(element),

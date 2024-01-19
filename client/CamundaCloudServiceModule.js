@@ -34,7 +34,8 @@ function buildTooltipOverlay(element, tooltipId) {
               <div class="tooltip-content">'
       + tooltipHeader(element)
       + emptyPropertiesIfNoLines([
-        tooltipDetails(element)
+        tooltipDetails(element),
+        tooltipMultiInstance(element),
       ])
       + '</div> \
             </div>';
@@ -241,6 +242,38 @@ function evaluateEvents(element, lines) {
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDuration.body));
     }
   }
+}
+
+/**
+ * container for multi-instance:
+ *  - properties depending multi-instance configuration
+ *  - e.g. collection, element variable
+ */
+function tooltipMultiInstance(element) {
+  let lines = [];
+  let loopCharacteristics = element.businessObject.loopCharacteristics
+
+  if (loopCharacteristics != undefined) {
+    if (loopCharacteristics.$type != 'bpmn:StandardLoopCharacteristics') {
+      lines.push(tooltipLineText('Multi Instance', loopCharacteristics.isSequential ? 'sequential' : 'parallel'));
+
+      if (loopCharacteristics.extensionElements != undefined) {
+        let loopCharacteristicsElement = findExtension(loopCharacteristics.extensionElements.values, 'zeebe:LoopCharacteristics')
+        if (loopCharacteristicsElement != undefined) {
+          lines.push(tooltipLineText('Input Collection', loopCharacteristicsElement.inputCollection));
+          lines.push(tooltipLineText('Input Element', loopCharacteristicsElement.inputElement));
+          lines.push(tooltipLineText('Output Collection', loopCharacteristicsElement.outputCollection));
+          lines.push(tooltipLineText('Output Element', loopCharacteristicsElement.outputElement));
+        }
+      }
+
+      if (loopCharacteristics.completionCondition != undefined) {
+        lines.push(tooltipLineText('Completion Condition', loopCharacteristics.completionCondition.body));
+      }
+    }
+  }
+
+  return addHeaderRemoveEmptyLinesAndFinalize('Multi Instance', lines);
 }
 
 /* >-- methods to assemble tooltip lines --< */
