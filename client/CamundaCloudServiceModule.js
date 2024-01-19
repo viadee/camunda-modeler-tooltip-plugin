@@ -37,7 +37,7 @@ function buildTooltipOverlay(element, tooltipId) {
       + emptyPropertiesIfNoLines([
         tooltipDetails(element),
         tooltipMultiInstance(element),
-        tooltipConditionalOutgoingSequenceFlows(element),
+        tooltipConditionalOutgoingSequenceFlows(element, false),
       ])
       + '</div> \
             </div>';

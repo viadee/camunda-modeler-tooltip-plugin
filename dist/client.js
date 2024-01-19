@@ -41,7 +41,7 @@ function buildTooltipOverlay(element, tooltipId) {
       + (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.emptyPropertiesIfNoLines)([
         tooltipDetails(element),
         tooltipMultiInstance(element),
-        (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element),
+        (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element, false),
       ])
       + '</div> \
             </div>';
@@ -706,7 +706,7 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipDetails(element),
         tooltipMultiInstance(element),
         tooltipExternalTaskConfiguration(element), // only needed for C7 models
-        (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element),
+        (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element, true),
         //tooltipInputMappings(element),
         //tooltipOutputMappings(element)
       ])
@@ -745,6 +745,8 @@ __webpack_require__.r(__webpack_exports__);
 
 const _html_no_properties_found = 'no relevant properties found';
 const _html_na = 'n/a';
+const supportedC7ConditionalGateways = ['bpmn:ExclusiveGateway', 'bpmn:InclusiveGateway', 'bpmn:ComplexGateway']
+const supportedC8ConditionalGateways = ['bpmn:ExclusiveGateway', 'bpmn:InclusiveGateway']
 const _html_ok = '&#10004;';
 const _html_nok = '&#10006;';
 
@@ -788,34 +790,52 @@ function emptyPropertiesIfNoLines(lines) {
  * container for conditional sequence flows:
  *  - evaluate outgoing sequence flows, if they are conditional or default
  */
-function tooltipConditionalOutgoingSequenceFlows(element) {
-  if (element.outgoing == undefined || element.outgoing.length <= 1) return '';
+function tooltipConditionalOutgoingSequenceFlows(element, isC7Model) {
+  let defaultFlow;
+  let isSupportedGateway = isC7Model ? supportedC7ConditionalGateways.includes(element.type) :
+      supportedC8ConditionalGateways.includes(element.type)
+
+  if (element.outgoing == undefined || !isSupportedGateway) return '';
 
   let html = '<div class="tooltip-container"> \
                   <div class="tooltip-subheader">Conditional Sequence-Flows</div>';
 
   if (element.businessObject.default != undefined) {
-    let defaultFlow = element.businessObject.default.id;
+    defaultFlow = element.businessObject.default.id;
   }
 
   lodash__WEBPACK_IMPORTED_MODULE_0___default().each(element.outgoing, function (outgoingFlow) {
     if (outgoingFlow.id == defaultFlow) {
       // default flow (there is only one)
-      html += tooltipLineText(outgoingFlow.businessObject.name || _html_na, 'default');
+      html += tooltipLineText((outgoingFlow.businessObject.name || _html_na),  + '<br />' + 'default');
 
     } else if (outgoingFlow.businessObject.conditionExpression == undefined) {
       // no expression given
-      html += tooltipLineText(outgoingFlow.businessObject.name || _html_na, _html_na);
+      html += tooltipLineText((outgoingFlow.businessObject.name || _html_na), '<br />' + _html_na);
 
     } else {
       // conditional / script flows
-      let language = outgoingFlow.businessObject.conditionExpression.language;
-      if (language != undefined && language.trim().length > 0) {
-        let conditionalExpression = 'Script Format: ' + language.trim() + '<br />'
-        conditionalExpression += outgoingFlow.businessObject.conditionExpression.body.replace(/(?:\r\n|\r|\n)/g, '<br />') || _html_na;
-        html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
-      } else {
-        let conditionalExpression = outgoingFlow.businessObject.conditionExpression.body || _html_na;
+      let scriptFormat = outgoingFlow.businessObject.conditionExpression.language;
+      if (scriptFormat != undefined) { // only relevant for C7 models
+        let scriptFormatToBeDisplayed = scriptFormat.trim().length > 0 ? scriptFormat : 'Not Selected'
+        let conditionalScript = '<br />' + 'Script Format: ' + scriptFormatToBeDisplayed + '<br />'
+
+        if (outgoingFlow.businessObject.conditionExpression.resource != undefined) {
+          conditionalScript += 'Script Type: ' + 'External Resource' + '<br />'
+          conditionalScript += outgoingFlow.businessObject.conditionExpression.resource
+        } else {
+          conditionalScript += 'Script Type: ' + 'Inline Script' + '<br />'
+          if (outgoingFlow.businessObject.conditionExpression.body === undefined) {
+            conditionalScript += _html_na
+          } else {
+            conditionalScript += outgoingFlow.businessObject.conditionExpression.body.replace(/(?:\r\n|\r|\n)/g, '<br />');
+          }
+        }
+
+        html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalScript);
+      } else { // relevant for both C7 and C8 models
+        let expressionBody = outgoingFlow.businessObject.conditionExpression.body
+        let conditionalExpression = '<br />' + (expressionBody === undefined ? _html_na : expressionBody)
         html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
       }
     }

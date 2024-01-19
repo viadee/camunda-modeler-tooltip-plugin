@@ -422,7 +422,7 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipDetails(element),
         tooltipMultiInstance(element),
         tooltipExternalTaskConfiguration(element), // only needed for C7 models
-        tooltipConditionalOutgoingSequenceFlows(element),
+        tooltipConditionalOutgoingSequenceFlows(element, true),
         //tooltipInputMappings(element),
         //tooltipOutputMappings(element)
       ])
