@@ -64,8 +64,6 @@ function tooltipDetails(element) {
   if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
   if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
   if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
-
-  // TODO
   if (type == 'bpmn:StartEvent'
       || type == 'bpmn:EndEvent'
       || type == 'bpmn:IntermediateCatchEvent'
