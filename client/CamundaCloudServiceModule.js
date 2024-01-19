@@ -1,16 +1,17 @@
 import {
   emptyPropertiesIfNoLines,
-  findBusinessKey,
   findEventDefinitionType,
   findExtension,
   findExtensionByType,
-  overlay,
-  tooltipHeader
+  overlay, tooltipConditionalOutgoingSequenceFlows,
+  tooltipHeader,
+  tooltipLineText,
+  addHeaderRemoveEmptyLinesAndFinalize,
+  _html_ok,
+  _html_nok
 } from "./GeneralServiceModule";
 
 const _ = require("lodash");
-const _html_ok = '&#10004;';
-const _html_nok = '&#10006;';
 
 /**
  * add tooltip regarding an element, using the given tooltip-id in html
@@ -36,6 +37,7 @@ function buildTooltipOverlay(element, tooltipId) {
       + emptyPropertiesIfNoLines([
         tooltipDetails(element),
         tooltipMultiInstance(element),
+        tooltipConditionalOutgoingSequenceFlows(element),
       ])
       + '</div> \
             </div>';
@@ -274,58 +276,4 @@ function tooltipMultiInstance(element) {
   }
 
   return addHeaderRemoveEmptyLinesAndFinalize('Multi Instance', lines);
-}
-
-/* >-- methods to assemble tooltip lines --< */
-
-/**
- * add a single tooltip line as 'text'
- */
-function tooltipLineText(key, value) {
-  return tooltipLineWithCss(key, value, 'tooltip-value-text');
-}
-
-/**
- * add a single tooltip line as 'code'
- */
-function tooltipLineCode(key, value) {
-  return tooltipLineWithCss(key, value, 'tooltip-value-code');
-}
-
-/**
- * add a single tooltip line as 'code'
- */
-function tooltipLineCodeWithFallback(key, value, fallback) {
-  if (value == undefined) {
-    return tooltipLineCode(key, fallback);
-  } else {
-    return tooltipLineCode(key, value);
-  }
-}
-
-/**
- * add a single tooltip line as <div> with 2 <span>,
- * like: <div><span>key: </span><span class="css">value</span></div>
- */
-function tooltipLineWithCss(key, value, css) {
-  if (value == undefined) return '';
-  return `<div class="tooltip-line"><span class="tooltip-key">${key}:&nbsp;</span><span class="tooltip-value ${css}">${value}</span></div>`;
-}
-
-/**
- * create a tooltip-container with header (e.g. 'Details') and add all respective properties.
- * if there is no property present, the container is not created.
- */
-function addHeaderRemoveEmptyLinesAndFinalize(subheader, lines) {
-  var final = _.without(lines, "");
-  if (final.length == 0) return '';
-
-  var html = '<div class="tooltip-container"> \
-                  <div class="tooltip-subheader">' + subheader + '</div>';
-
-  _.each(final, function (line) {
-    html += line;
-  });
-
-  return html += '</div>';
 }

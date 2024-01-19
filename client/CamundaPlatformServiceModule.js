@@ -4,15 +4,17 @@ import {
   findEventDefinitionType,
   findExtension,
   findExtensionByType,
-  overlay,
-  tooltipHeader
+  overlay, tooltipConditionalOutgoingSequenceFlows,
+  tooltipHeader,
+  tooltipLineText,
+  tooltipLineCode,
+  tooltipLineCodeWithFallback,
+  addHeaderRemoveEmptyLinesAndFinalize,
+  _html_ok,
+  _html_nok
 } from "./GeneralServiceModule";
 
 const _ = require('lodash');
-
-const _html_ok = '&#10004;';
-const _html_nok = '&#10006;';
-const _html_na = 'n/a';
 
 /**
  * add tooltip regarding an element, using the given tooltip-id in html
@@ -107,64 +109,6 @@ function tooltipExternalTaskConfiguration(element) {
   var lines = [];
   lines.push(tooltipLineText('Task Priority', element.businessObject.taskPriority));
   return addHeaderRemoveEmptyLinesAndFinalize('External Task Configuration', lines);
-}
-
-/**
- * container for job configuration:
- *  - job priority, retry behaviour
- */
-function tooltipJobConfiguration(element) {
-  if (element.businessObject == undefined) return '';
-
-  var lines = [];
-  lines.push(tooltipLineText('Job Priority', element.businessObject.jobPriority));
-
-  var retryTimeCycle = findExtensionByType(element, 'camunda:FailedJobRetryTimeCycle')
-  if (retryTimeCycle != undefined) {
-    lines.push(tooltipLineText('Retry Time Cycle', retryTimeCycle.body));
-  }
-
-  return addHeaderRemoveEmptyLinesAndFinalize('Job Configuration', lines);
-}
-
-/**
- * container for conditional sequence flows:
- *  - evaluate outgoing sequence flows, if they are conditional or default
- */
-function tooltipConditionalOutgoingSequenceFlows(element) {
-  if (element.outgoing == undefined || element.outgoing.length <= 1) return '';
-
-  var html = '<div class="tooltip-container"> \
-                  <div class="tooltip-subheader">Conditional Sequence-Flows</div>';
-
-  if (element.businessObject.default != undefined) {
-    var defaultFlow = element.businessObject.default.id;
-  }
-
-  _.each(element.outgoing, function (outgoingFlow) {
-    if (outgoingFlow.id == defaultFlow) {
-      // default flow (there is only one)
-      html += tooltipLineText(outgoingFlow.businessObject.name || _html_na, 'default');
-
-    } else if (outgoingFlow.businessObject.conditionExpression == undefined) {
-      // no expression given
-      html += tooltipLineText(outgoingFlow.businessObject.name || _html_na, _html_na);
-
-    } else {
-      // conditional / script flows
-      var language = outgoingFlow.businessObject.conditionExpression.language;
-      if (language != undefined && language.trim().length > 0) {
-        var conditionalExpression = 'Script Format: ' + language.trim() + '<br />'
-        conditionalExpression += outgoingFlow.businessObject.conditionExpression.body.replace(/(?:\r\n|\r|\n)/g, '<br />') || _html_na;
-        html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
-      } else {
-        var conditionalExpression = outgoingFlow.businessObject.conditionExpression.body || _html_na;
-        html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
-      }
-    }
-  });
-
-  return html += '</div>';
 }
 
 /**
@@ -463,60 +407,6 @@ function evaluateEvents(element, lines) {
   lines.push(tooltipLineText('Initiator', element.businessObject.initiator));
 }
 
-/* >-- methods to assemble tooltip lines --< */
-
-/**
- * add a single tooltip line as 'text'
- */
-function tooltipLineText(key, value) {
-  return tooltipLineWithCss(key, value, 'tooltip-value-text');
-}
-
-/**
- * add a single tooltip line as 'code'
- */
-function tooltipLineCode(key, value) {
-  return tooltipLineWithCss(key, value, 'tooltip-value-code');
-}
-
-/**
- * add a single tooltip line as 'code'
- */
-function tooltipLineCodeWithFallback(key, value, fallback) {
-  if (value == undefined) {
-    return tooltipLineCode(key, fallback);
-  } else {
-    return tooltipLineCode(key, value);
-  }
-}
-
-/**
- * add a single tooltip line as <div> with 2 <span>,
- * like: <div><span>key: </span><span class="css">value</span></div>
- */
-function tooltipLineWithCss(key, value, css) {
-  if (value == undefined) return '';
-  return `<div class="tooltip-line"><span class="tooltip-key">${key}:&nbsp;</span><span class="tooltip-value ${css}">${value}</span></div>`;
-}
-
-/**
- * create a tooltip-container with header (e.g. 'Details') and add all respective properties.
- * if there is no property present, the container is not created.
- */
-function addHeaderRemoveEmptyLinesAndFinalize(subheader, lines) {
-  var final = _.without(lines, "");
-  if (final.length == 0) return '';
-
-  var html = '<div class="tooltip-container"> \
-                  <div class="tooltip-subheader">' + subheader + '</div>';
-
-  _.each(final, function (line) {
-    html += line;
-  });
-
-  return html += '</div>';
-}
-
 /**
  * build a complete tooltip-overlay-html, consisting of header, and
  * detail-containers, if any information is, otherwise show resp. hint.
@@ -532,8 +422,7 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipDetails(element),
         tooltipMultiInstance(element),
         tooltipExternalTaskConfiguration(element), // only needed for C7 models
-        tooltipJobConfiguration(element), // only needed for C7 models
-        //tooltipConditionalOutgoingSequenceFlows(element),
+        tooltipConditionalOutgoingSequenceFlows(element),
         //tooltipInputMappings(element),
         //tooltipOutputMappings(element)
       ])
