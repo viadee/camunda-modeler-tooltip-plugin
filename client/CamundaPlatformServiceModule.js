@@ -358,6 +358,13 @@ function evaluateEvents(element, lines) {
     }
   }
 
+  if (findEventDefinitionType(element, 'bpmn:LinkEventDefinition') != undefined) {
+    console.log("LinkEventDefinition" + element.type)
+
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:LinkEventDefinition')
+    lines.push(tooltipLineText('Name', eventDefinition.name))
+  }
+
   if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') != undefined) {
     var eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
     if (eventDefinition.escalationRef != undefined) {
@@ -381,6 +388,10 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:CompensateEventDefinition') != undefined) {
+    if (element.type === 'bpmn:BoundaryEvent') {
+      return;
+    }
+
     var eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
     lines.push(tooltipLineText('Wait for Completion', eventDefinition.waitForCompletion ? _html_ok : _html_nok));
     if (eventDefinition.activityRef != undefined) {

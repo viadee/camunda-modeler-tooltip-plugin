@@ -173,10 +173,11 @@ function evaluateEvents(element, lines) {
 
 
   if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') != undefined) {
-    console.log("jetzt " + element.type)
     let eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
     if (eventDefinition.messageRef != undefined) {
+      let subscriptionKeyElement = findExtension(eventDefinition.messageRef.extensionElements.values, "zeebe:Subscription")
       lines.push(tooltipLineText('Message Name', eventDefinition.messageRef.name));
+      lines.push(tooltipLineText('Subscription Key', subscriptionKeyElement.correlationKey))
     }
 
     let eventExtensionElement = findExtensionByType(element, 'zeebe:TaskDefinition')
@@ -187,29 +188,32 @@ function evaluateEvents(element, lines) {
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
-    if (eventDefinition.escalationRef != undefined) {
-      // lines.push(tooltipLineText('Escalation', eventDefinition.escalationRef.id));
-      lines.push(tooltipLineText('Escalation Name', eventDefinition.escalationRef.name));
-      lines.push(tooltipLineText('Escalation Code', eventDefinition.escalationRef.escalationCode));
-      lines.push(tooltipLineText('Escalation Code Variable', eventDefinition.escalationCodeVariable));
+  if (findEventDefinitionType(element, 'bpmn:LinkEventDefinition') != undefined) {
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:LinkEventDefinition')
+    lines.push(tooltipLineText('Name', eventDefinition.name))
+  }
+
+  if (findEventDefinitionType(element, 'bpmn:ErrorEventDefinition')) {
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:ErrorEventDefinition')
+    if (eventDefinition.errorRef != undefined) {
+      lines.push(tooltipLineText('Error Name', eventDefinition.errorRef.name))
+      lines.push(tooltipLineText('Error Code', eventDefinition.errorRef.errorCode))
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:ErrorEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:ErrorEventDefinition');
-    if (eventDefinition.errorRef != undefined) {
-      // lines.push(tooltipLineText('Error', eventDefinition.errorRef.id));
-      lines.push(tooltipLineText('Error Name', eventDefinition.errorRef.name));
-      lines.push(tooltipLineText('Error Code', eventDefinition.errorRef.errorCode));
-      lines.push(tooltipLineText('Error Message', eventDefinition.errorRef.errorMessage));
-      lines.push(tooltipLineText('Error Code Variable', eventDefinition.errorCodeVariable));
-      lines.push(tooltipLineText('Error Message Variable', eventDefinition.errorMessageVariable));
+  if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') != undefined) {
+    var eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
+    if (eventDefinition.escalationRef != undefined) {
+      lines.push(tooltipLineText('Escalation Name', eventDefinition.escalationRef.name));
+      lines.push(tooltipLineText('Escalation Code', eventDefinition.escalationRef.escalationCode));
     }
   }
 
   if (findEventDefinitionType(element, 'bpmn:CompensateEventDefinition') != undefined) {
+    if (element.type === 'bpmn:BoundaryEvent') {
+      return;
+    }
+
     var eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
     lines.push(tooltipLineText('Wait for Completion', eventDefinition.waitForCompletion ? _html_ok : _html_nok));
     if (eventDefinition.activityRef != undefined) {
@@ -220,7 +224,6 @@ function evaluateEvents(element, lines) {
   if (findEventDefinitionType(element, 'bpmn:SignalEventDefinition') != undefined) {
     var eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
     if (eventDefinition.signalRef != undefined) {
-      // lines.push(tooltipLineText('Signal', eventDefinition.signalRef.id));
       lines.push(tooltipLineText('Signal Name', eventDefinition.signalRef.name));
     }
   }
@@ -235,29 +238,11 @@ function evaluateEvents(element, lines) {
       lines.push(tooltipLineText('Timer', 'Cycle'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeCycle.body));
     }
-  }
-
-  if (findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition');
-    lines.push(tooltipLineText('Variable Name', eventDefinition.variableName));
-    lines.push(tooltipLineText('Variable Event', eventDefinition.variableEvent));
-    if (eventDefinition.condition != undefined && eventDefinition.condition.language != undefined) {
-      lines.push(tooltipLineText('Condition Type', 'Script'));
-      lines.push(tooltipLineText('Script Format', eventDefinition.condition.language));
-      if (eventDefinition.condition.resource != undefined) {
-        lines.push(tooltipLineText('Script Type', 'External Resource'));
-        lines.push(tooltipLineText('Resource', eventDefinition.condition.resource));
-      } else {
-        lines.push(tooltipLineText('Script Type', 'Inline Script'));
-        lines.push(tooltipLineCode('Script', eventDefinition.condition.body.replace(/(?:\r\n|\r|\n)/g, '<br />')));
-      }
-    } else {
-      lines.push(tooltipLineText('Condition Type', 'Expression'));
-      lines.push(tooltipLineCode('Expression', eventDefinition.condition.body));
+    if (eventDefinition.timeDuration != undefined) {
+      lines.push(tooltipLineText('Timer', 'Duration'));
+      lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDuration.body));
     }
   }
-
-  lines.push(tooltipLineText('Initiator', element.businessObject.initiator));
 }
 
 /* >-- methods to assemble tooltip lines --< */
