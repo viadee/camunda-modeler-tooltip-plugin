@@ -34,8 +34,8 @@ export function addTooltip(elementOverlays, overlays, element, tooltipId) {
 function tooltipDetails(element) {
   if (element.businessObject == undefined) return '';
 
-  var lines = [];
-  var type = element.businessObject.$type;
+  let lines = [];
+  let type = element.businessObject.$type;
 
   if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask' || type == 'bpmn:BusinessRuleTask') evaluateServiceSendRuleTask(element, lines);
   if (type == 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
@@ -58,7 +58,7 @@ function tooltipDetails(element) {
  *  - e.g. collection, element variable
  */
 function tooltipMultiInstance(element) {
-  var lines = [];
+  let lines = [];
   let loopCharacteristics = element.businessObject.loopCharacteristics
 
   if (loopCharacteristics != undefined) {
@@ -85,7 +85,7 @@ function tooltipMultiInstance(element) {
           != undefined
           && element.businessObject.loopCharacteristics.extensionElements.values
           != undefined) {
-        var extensionElement = findExtension(
+        let extensionElement = findExtension(
             element.businessObject.loopCharacteristics.extensionElements.values,
             'camunda:FailedJobRetryTimeCycle')
         if (extensionElement != undefined) {
@@ -106,7 +106,7 @@ function tooltipMultiInstance(element) {
  */
 function tooltipExternalTaskConfiguration(element) {
   if (element.businessObject == undefined) return '';
-  var lines = [];
+  let lines = [];
   lines.push(tooltipLineText('Task Priority', element.businessObject.taskPriority));
   return addHeaderRemoveEmptyLinesAndFinalize('External Task Configuration', lines);
 }
@@ -117,10 +117,10 @@ function tooltipExternalTaskConfiguration(element) {
 function tooltipInputMappings(element) {
   if (element.businessObject == undefined) return '';
 
-  var inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
+  let inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
 
   if (inputOutputs != undefined) {
-    var inputs = inputOutputs.inputParameters;
+    let inputs = inputOutputs.inputParameters;
     return tooltipInputOutputMappings('Inputs', inputs)
   }
 
@@ -133,10 +133,10 @@ function tooltipInputMappings(element) {
 function tooltipOutputMappings(element) {
   if (element.businessObject == undefined) return '';
 
-  var inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
+  let inputOutputs = findExtensionByType(element, 'camunda:InputOutput');
 
   if (inputOutputs != undefined) {
-    var outputs = inputOutputs.outputParameters;
+    let outputs = inputOutputs.outputParameters;
     return tooltipInputOutputMappings('Outputs', outputs)
   }
 
@@ -144,14 +144,14 @@ function tooltipOutputMappings(element) {
 }
 
 function tooltipInputOutputMappings(label, parameters) {
-  var lines = [];
+  let lines = [];
   _.forEach(parameters, function (param) {
     if (param.definition == undefined) {
       // Type: String / Expression
       lines.push(tooltipLineCodeWithFallback(param.name, param.value, ''));
     } else {
       // Type: List, Map, Script
-      var inputMappingType = 'unknown Type';
+      let inputMappingType = 'unknown Type';
       if (param.definition.$type == 'camunda:List') { inputMappingType = 'List' }
       if (param.definition.$type == 'camunda:Map') { inputMappingType = 'Map' }
       if (param.definition.$type == 'camunda:Script') { inputMappingType = 'Script' }
@@ -263,7 +263,7 @@ function evaluateCallActivity(element, lines) {
     lines.push(tooltipLineText('Tenant Id', element.businessObject.caseTenantId));
   }
 
-  var bk = findBusinessKey(element)
+  let bk = findBusinessKey(element)
   if (bk != undefined) {
     lines.push(tooltipLineText('Business Key', _html_ok));
     lines.push(tooltipLineCode('Business Key Expression', bk.businessKey));
@@ -287,7 +287,7 @@ function evaluateUserTask(element, lines) {
  */
 function evaluateEvents(element, lines) {
   if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
     if (eventDefinition.class != undefined) {
       lines.push(tooltipLineText('Implementation', 'Java Class'));
       lines.push(tooltipLineCode('Class', eventDefinition.class));
@@ -327,7 +327,7 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
     if (eventDefinition.escalationRef != undefined) {
       // lines.push(tooltipLineText('Escalation', eventDefinition.escalationRef.id));
       lines.push(tooltipLineText('Escalation Name', eventDefinition.escalationRef.name));
@@ -337,7 +337,7 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:ErrorEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:ErrorEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:ErrorEventDefinition');
     if (eventDefinition.errorRef != undefined) {
       // lines.push(tooltipLineText('Error', eventDefinition.errorRef.id));
       lines.push(tooltipLineText('Error Name', eventDefinition.errorRef.name));
@@ -353,7 +353,7 @@ function evaluateEvents(element, lines) {
       return;
     }
 
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
     lines.push(tooltipLineText('Wait for Completion', eventDefinition.waitForCompletion ? _html_ok : _html_nok));
     if (eventDefinition.activityRef != undefined) {
       lines.push(tooltipLineText('Activity Ref', eventDefinition.activityRef.id));
@@ -361,7 +361,7 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:SignalEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
     if (eventDefinition.signalRef != undefined) {
       // lines.push(tooltipLineText('Signal', eventDefinition.signalRef.id));
       lines.push(tooltipLineText('Signal Name', eventDefinition.signalRef.name));
@@ -369,7 +369,7 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:TimerEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
     if (eventDefinition.timeDate != undefined) {
       lines.push(tooltipLineText('Timer', 'Date'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDate.body));
@@ -385,7 +385,7 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:ConditionalEventDefinition');
     lines.push(tooltipLineText('Variable Name', eventDefinition.variableName));
     lines.push(tooltipLineText('Variable Event', eventDefinition.variableEvent));
     if (eventDefinition.condition != undefined && eventDefinition.condition.language != undefined) {

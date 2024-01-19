@@ -203,7 +203,7 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
     if (eventDefinition.escalationRef != undefined) {
       lines.push(tooltipLineText('Escalation Name', eventDefinition.escalationRef.name));
       lines.push(tooltipLineText('Escalation Code', eventDefinition.escalationRef.escalationCode));
@@ -215,7 +215,7 @@ function evaluateEvents(element, lines) {
       return;
     }
 
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
     lines.push(tooltipLineText('Wait for Completion', eventDefinition.waitForCompletion ? _html_ok : _html_nok));
     if (eventDefinition.activityRef != undefined) {
       lines.push(tooltipLineText('Activity Ref', eventDefinition.activityRef.id));
@@ -223,14 +223,14 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:SignalEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
     if (eventDefinition.signalRef != undefined) {
       lines.push(tooltipLineText('Signal Name', eventDefinition.signalRef.name));
     }
   }
 
   if (findEventDefinitionType(element, 'bpmn:TimerEventDefinition') != undefined) {
-    var eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
+    let eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
     if (eventDefinition.timeDate != undefined) {
       lines.push(tooltipLineText('Timer', 'Date'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDate.body));

@@ -33,7 +33,7 @@ export function tooltipHeader(element) {
  * otherwise join all lines that include some information
  */
 export function emptyPropertiesIfNoLines(lines) {
-  var final = _.without(lines, "");
+  let final = _.without(lines, "");
   if (final.length == 0) {
     return `<div class="tooltip-no-properties">${_html_no_properties_found}</div>`;
   }
@@ -47,11 +47,11 @@ export function emptyPropertiesIfNoLines(lines) {
 export function tooltipConditionalOutgoingSequenceFlows(element) {
   if (element.outgoing == undefined || element.outgoing.length <= 1) return '';
 
-  var html = '<div class="tooltip-container"> \
+  let html = '<div class="tooltip-container"> \
                   <div class="tooltip-subheader">Conditional Sequence-Flows</div>';
 
   if (element.businessObject.default != undefined) {
-    var defaultFlow = element.businessObject.default.id;
+    let defaultFlow = element.businessObject.default.id;
   }
 
   _.each(element.outgoing, function (outgoingFlow) {
@@ -65,13 +65,13 @@ export function tooltipConditionalOutgoingSequenceFlows(element) {
 
     } else {
       // conditional / script flows
-      var language = outgoingFlow.businessObject.conditionExpression.language;
+      let language = outgoingFlow.businessObject.conditionExpression.language;
       if (language != undefined && language.trim().length > 0) {
-        var conditionalExpression = 'Script Format: ' + language.trim() + '<br />'
+        let conditionalExpression = 'Script Format: ' + language.trim() + '<br />'
         conditionalExpression += outgoingFlow.businessObject.conditionExpression.body.replace(/(?:\r\n|\r|\n)/g, '<br />') || _html_na;
         html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
       } else {
-        var conditionalExpression = outgoingFlow.businessObject.conditionExpression.body || _html_na;
+        let conditionalExpression = outgoingFlow.businessObject.conditionExpression.body || _html_na;
         html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
       }
     }
@@ -168,10 +168,10 @@ function tooltipLineWithCss(key, value, css) {
  * if there is no property present, the container is not created.
  */
 export function addHeaderRemoveEmptyLinesAndFinalize(subheader, lines) {
-  var final = _.without(lines, "");
+  let final = _.without(lines, "");
   if (final.length == 0) return '';
 
-  var html = '<div class="tooltip-container"> \
+  let html = '<div class="tooltip-container"> \
                   <div class="tooltip-subheader">' + subheader + '</div>';
 
   _.each(final, function (line) {

@@ -207,7 +207,7 @@ function evaluateEvents(element, lines) {
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition');
     if (eventDefinition.escalationRef != undefined) {
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Escalation Name', eventDefinition.escalationRef.name));
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Escalation Code', eventDefinition.escalationRef.escalationCode));
@@ -219,7 +219,7 @@ function evaluateEvents(element, lines) {
       return;
     }
 
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:CompensateEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:CompensateEventDefinition');
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Wait for Completion', eventDefinition.waitForCompletion ? _GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__._html_ok : _GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__._html_nok));
     if (eventDefinition.activityRef != undefined) {
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Activity Ref', eventDefinition.activityRef.id));
@@ -227,14 +227,14 @@ function evaluateEvents(element, lines) {
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition');
     if (eventDefinition.signalRef != undefined) {
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Signal Name', eventDefinition.signalRef.name));
     }
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition');
     if (eventDefinition.timeDate != undefined) {
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Timer', 'Date'));
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Timer Definition', eventDefinition.timeDate.body));
@@ -318,8 +318,8 @@ function addTooltip(elementOverlays, overlays, element, tooltipId) {
 function tooltipDetails(element) {
   if (element.businessObject == undefined) return '';
 
-  var lines = [];
-  var type = element.businessObject.$type;
+  let lines = [];
+  let type = element.businessObject.$type;
 
   if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask' || type == 'bpmn:BusinessRuleTask') evaluateServiceSendRuleTask(element, lines);
   if (type == 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
@@ -342,7 +342,7 @@ function tooltipDetails(element) {
  *  - e.g. collection, element variable
  */
 function tooltipMultiInstance(element) {
-  var lines = [];
+  let lines = [];
   let loopCharacteristics = element.businessObject.loopCharacteristics
 
   if (loopCharacteristics != undefined) {
@@ -369,7 +369,7 @@ function tooltipMultiInstance(element) {
           != undefined
           && element.businessObject.loopCharacteristics.extensionElements.values
           != undefined) {
-        var extensionElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(
+        let extensionElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(
             element.businessObject.loopCharacteristics.extensionElements.values,
             'camunda:FailedJobRetryTimeCycle')
         if (extensionElement != undefined) {
@@ -390,7 +390,7 @@ function tooltipMultiInstance(element) {
  */
 function tooltipExternalTaskConfiguration(element) {
   if (element.businessObject == undefined) return '';
-  var lines = [];
+  let lines = [];
   lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Task Priority', element.businessObject.taskPriority));
   return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)('External Task Configuration', lines);
 }
@@ -401,10 +401,10 @@ function tooltipExternalTaskConfiguration(element) {
 function tooltipInputMappings(element) {
   if (element.businessObject == undefined) return '';
 
-  var inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
+  let inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
 
   if (inputOutputs != undefined) {
-    var inputs = inputOutputs.inputParameters;
+    let inputs = inputOutputs.inputParameters;
     return tooltipInputOutputMappings('Inputs', inputs)
   }
 
@@ -417,10 +417,10 @@ function tooltipInputMappings(element) {
 function tooltipOutputMappings(element) {
   if (element.businessObject == undefined) return '';
 
-  var inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
+  let inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
 
   if (inputOutputs != undefined) {
-    var outputs = inputOutputs.outputParameters;
+    let outputs = inputOutputs.outputParameters;
     return tooltipInputOutputMappings('Outputs', outputs)
   }
 
@@ -428,14 +428,14 @@ function tooltipOutputMappings(element) {
 }
 
 function tooltipInputOutputMappings(label, parameters) {
-  var lines = [];
+  let lines = [];
   _.forEach(parameters, function (param) {
     if (param.definition == undefined) {
       // Type: String / Expression
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCodeWithFallback)(param.name, param.value, ''));
     } else {
       // Type: List, Map, Script
-      var inputMappingType = 'unknown Type';
+      let inputMappingType = 'unknown Type';
       if (param.definition.$type == 'camunda:List') { inputMappingType = 'List' }
       if (param.definition.$type == 'camunda:Map') { inputMappingType = 'Map' }
       if (param.definition.$type == 'camunda:Script') { inputMappingType = 'Script' }
@@ -547,7 +547,7 @@ function evaluateCallActivity(element, lines) {
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Tenant Id', element.businessObject.caseTenantId));
   }
 
-  var bk = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findBusinessKey)(element)
+  let bk = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findBusinessKey)(element)
   if (bk != undefined) {
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Business Key', _GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__._html_ok));
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCode)('Business Key Expression', bk.businessKey));
@@ -571,7 +571,7 @@ function evaluateUserTask(element, lines) {
  */
 function evaluateEvents(element, lines) {
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition');
     if (eventDefinition.class != undefined) {
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Implementation', 'Java Class'));
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCode)('Class', eventDefinition.class));
@@ -611,7 +611,7 @@ function evaluateEvents(element, lines) {
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:EscalationEventDefinition');
     if (eventDefinition.escalationRef != undefined) {
       // lines.push(tooltipLineText('Escalation', eventDefinition.escalationRef.id));
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Escalation Name', eventDefinition.escalationRef.name));
@@ -621,7 +621,7 @@ function evaluateEvents(element, lines) {
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ErrorEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ErrorEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ErrorEventDefinition');
     if (eventDefinition.errorRef != undefined) {
       // lines.push(tooltipLineText('Error', eventDefinition.errorRef.id));
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Error Name', eventDefinition.errorRef.name));
@@ -637,7 +637,7 @@ function evaluateEvents(element, lines) {
       return;
     }
 
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:CompensateEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:CompensateEventDefinition');
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Wait for Completion', eventDefinition.waitForCompletion ? _GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__._html_ok : _GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__._html_nok));
     if (eventDefinition.activityRef != undefined) {
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Activity Ref', eventDefinition.activityRef.id));
@@ -645,7 +645,7 @@ function evaluateEvents(element, lines) {
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:SignalEventDefinition');
     if (eventDefinition.signalRef != undefined) {
       // lines.push(tooltipLineText('Signal', eventDefinition.signalRef.id));
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Signal Name', eventDefinition.signalRef.name));
@@ -653,7 +653,7 @@ function evaluateEvents(element, lines) {
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:TimerEventDefinition');
     if (eventDefinition.timeDate != undefined) {
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Timer', 'Date'));
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Timer Definition', eventDefinition.timeDate.body));
@@ -669,7 +669,7 @@ function evaluateEvents(element, lines) {
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ConditionalEventDefinition') != undefined) {
-    var eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ConditionalEventDefinition');
+    let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:ConditionalEventDefinition');
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Variable Name', eventDefinition.variableName));
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Variable Event', eventDefinition.variableEvent));
     if (eventDefinition.condition != undefined && eventDefinition.condition.language != undefined) {
@@ -777,7 +777,7 @@ function tooltipHeader(element) {
  * otherwise join all lines that include some information
  */
 function emptyPropertiesIfNoLines(lines) {
-  var final = lodash__WEBPACK_IMPORTED_MODULE_0___default().without(lines, "");
+  let final = lodash__WEBPACK_IMPORTED_MODULE_0___default().without(lines, "");
   if (final.length == 0) {
     return `<div class="tooltip-no-properties">${_html_no_properties_found}</div>`;
   }
@@ -791,11 +791,11 @@ function emptyPropertiesIfNoLines(lines) {
 function tooltipConditionalOutgoingSequenceFlows(element) {
   if (element.outgoing == undefined || element.outgoing.length <= 1) return '';
 
-  var html = '<div class="tooltip-container"> \
+  let html = '<div class="tooltip-container"> \
                   <div class="tooltip-subheader">Conditional Sequence-Flows</div>';
 
   if (element.businessObject.default != undefined) {
-    var defaultFlow = element.businessObject.default.id;
+    let defaultFlow = element.businessObject.default.id;
   }
 
   lodash__WEBPACK_IMPORTED_MODULE_0___default().each(element.outgoing, function (outgoingFlow) {
@@ -809,13 +809,13 @@ function tooltipConditionalOutgoingSequenceFlows(element) {
 
     } else {
       // conditional / script flows
-      var language = outgoingFlow.businessObject.conditionExpression.language;
+      let language = outgoingFlow.businessObject.conditionExpression.language;
       if (language != undefined && language.trim().length > 0) {
-        var conditionalExpression = 'Script Format: ' + language.trim() + '<br />'
+        let conditionalExpression = 'Script Format: ' + language.trim() + '<br />'
         conditionalExpression += outgoingFlow.businessObject.conditionExpression.body.replace(/(?:\r\n|\r|\n)/g, '<br />') || _html_na;
         html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
       } else {
-        var conditionalExpression = outgoingFlow.businessObject.conditionExpression.body || _html_na;
+        let conditionalExpression = outgoingFlow.businessObject.conditionExpression.body || _html_na;
         html += tooltipLineCode(outgoingFlow.businessObject.name || _html_na, conditionalExpression);
       }
     }
@@ -912,10 +912,10 @@ function tooltipLineWithCss(key, value, css) {
  * if there is no property present, the container is not created.
  */
 function addHeaderRemoveEmptyLinesAndFinalize(subheader, lines) {
-  var final = lodash__WEBPACK_IMPORTED_MODULE_0___default().without(lines, "");
+  let final = lodash__WEBPACK_IMPORTED_MODULE_0___default().without(lines, "");
   if (final.length == 0) return '';
 
-  var html = '<div class="tooltip-container"> \
+  let html = '<div class="tooltip-container"> \
                   <div class="tooltip-subheader">' + subheader + '</div>';
 
   lodash__WEBPACK_IMPORTED_MODULE_0___default().each(final, function (line) {
