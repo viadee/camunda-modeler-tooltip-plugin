@@ -246,6 +246,7 @@ function evaluateServiceSendRuleTask(element, lines) {
 
   if (findExtensionByType(element, 'camunda:Connector') != undefined) {
     lines.push(tooltipLineText('Implementation', 'Connector'));
+    lines.push(tooltipLineText('Connector ID', findExtensionByType(element, 'camunda:Connector').connectorId))
   }
 }
 

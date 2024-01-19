@@ -592,6 +592,7 @@ function evaluateServiceSendRuleTask(element, lines) {
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:Connector') != undefined) {
     lines.push(tooltipLineText('Implementation', 'Connector'));
+    lines.push(tooltipLineText('Connector ID', (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:Connector').connectorId))
   }
 }
 
