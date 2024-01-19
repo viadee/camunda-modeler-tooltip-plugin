@@ -530,7 +530,7 @@ function buildTooltipOverlay(element, tooltipId) {
       + emptyPropertiesIfNoLines([
         tooltipDetails(element),
         tooltipMultiInstance(element),
-        //tooltipExternalTaskConfiguration(element),
+        tooltipExternalTaskConfiguration(element), // only needed for C7 models
         //tooltipJobConfiguration(element),
         //tooltipConditionalOutgoingSequenceFlows(element),
         //tooltipInputMappings(element),

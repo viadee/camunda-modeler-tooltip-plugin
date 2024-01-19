@@ -876,7 +876,7 @@ function buildTooltipOverlay(element, tooltipId) {
       + (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.emptyPropertiesIfNoLines)([
         tooltipDetails(element),
         tooltipMultiInstance(element),
-        //tooltipExternalTaskConfiguration(element),
+        tooltipExternalTaskConfiguration(element), // only needed for C7 models
         //tooltipJobConfiguration(element),
         //tooltipConditionalOutgoingSequenceFlows(element),
         //tooltipInputMappings(element),
