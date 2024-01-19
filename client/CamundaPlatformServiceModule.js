@@ -57,9 +57,10 @@ function tooltipDetails(element) {
  */
 function tooltipMultiInstance(element) {
   var lines = [];
+  let loopCharacteristics = element.businessObject.loopCharacteristics
 
-  if (element.businessObject.loopCharacteristics.$type != 'bpmn:StandardLoopCharacteristics') {
-    if (element.businessObject.loopCharacteristics != undefined) {
+  if (loopCharacteristics != undefined) {
+    if (loopCharacteristics.$type != 'bpmn:StandardLoopCharacteristics') {
       lines.push(tooltipLineText('Multi Instance',
           element.businessObject.loopCharacteristics.isSequential ? 'sequential'
               : 'parallel'));
