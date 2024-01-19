@@ -42,6 +42,8 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipDetails(element),
         tooltipMultiInstance(element),
         (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element, false),
+        tooltipInputMappings(element),
+        tooltipOutputMappings(element)
       ])
       + '</div> \
             </div>';
@@ -282,6 +284,47 @@ function tooltipMultiInstance(element) {
   return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)('Multi Instance', lines);
 }
 
+/**
+ * container for input-mappings
+ */
+function tooltipInputMappings(element) {
+  if (element.businessObject == undefined) return '';
+
+  let inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'zeebe:IoMapping');
+
+  if (inputOutputs != undefined) {
+    let inputs = inputOutputs.inputParameters;
+    return tooltipInputOutputMappings('Inputs', inputs)
+  }
+
+  return '';
+}
+
+/**
+ * container for output-mappings
+ */
+function tooltipOutputMappings(element) {
+  if (element.businessObject == undefined) return '';
+
+  let inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'zeebe:IoMapping');
+
+  if (inputOutputs != undefined) {
+    let outputs = inputOutputs.outputParameters;
+    return tooltipInputOutputMappings('Outputs', outputs)
+  }
+
+  return '';
+}
+
+function tooltipInputOutputMappings(label, parameters) {
+  let lines = [];
+  _.forEach(parameters, function (param) {
+    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCode)(param.target, param.source));
+  })
+
+  return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)(label, lines);
+}
+
 /***/ }),
 
 /***/ "./client/CamundaPlatformServiceModule.js":
@@ -432,7 +475,7 @@ function tooltipInputOutputMappings(label, parameters) {
   _.forEach(parameters, function (param) {
     if (param.definition == undefined) {
       // Type: String / Expression
-      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCodeWithFallback)(param.name, param.value, ''));
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCodeWithFallback)(param.name, param.value, 'n/a'));
     } else {
       // Type: List, Map, Script
       let inputMappingType = 'unknown Type';
@@ -707,8 +750,8 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipMultiInstance(element),
         tooltipExternalTaskConfiguration(element), // only needed for C7 models
         (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element, true),
-        //tooltipInputMappings(element),
-        //tooltipOutputMappings(element)
+        tooltipInputMappings(element),
+        tooltipOutputMappings(element)
       ])
       + '</div> \
             </div>';

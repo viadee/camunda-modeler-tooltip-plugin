@@ -148,7 +148,7 @@ function tooltipInputOutputMappings(label, parameters) {
   _.forEach(parameters, function (param) {
     if (param.definition == undefined) {
       // Type: String / Expression
-      lines.push(tooltipLineCodeWithFallback(param.name, param.value, ''));
+      lines.push(tooltipLineCodeWithFallback(param.name, param.value, 'n/a'));
     } else {
       // Type: List, Map, Script
       let inputMappingType = 'unknown Type';
@@ -423,8 +423,8 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipMultiInstance(element),
         tooltipExternalTaskConfiguration(element), // only needed for C7 models
         tooltipConditionalOutgoingSequenceFlows(element, true),
-        //tooltipInputMappings(element),
-        //tooltipOutputMappings(element)
+        tooltipInputMappings(element),
+        tooltipOutputMappings(element)
       ])
       + '</div> \
             </div>';

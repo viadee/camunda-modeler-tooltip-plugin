@@ -7,6 +7,7 @@ import {
   tooltipHeader,
   tooltipLineText,
   addHeaderRemoveEmptyLinesAndFinalize,
+  tooltipLineCode,
   _html_ok,
   _html_nok
 } from "./GeneralServiceModule";
@@ -38,6 +39,8 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipDetails(element),
         tooltipMultiInstance(element),
         tooltipConditionalOutgoingSequenceFlows(element, false),
+        tooltipInputMappings(element),
+        tooltipOutputMappings(element)
       ])
       + '</div> \
             </div>';
@@ -276,4 +279,45 @@ function tooltipMultiInstance(element) {
   }
 
   return addHeaderRemoveEmptyLinesAndFinalize('Multi Instance', lines);
+}
+
+/**
+ * container for input-mappings
+ */
+function tooltipInputMappings(element) {
+  if (element.businessObject == undefined) return '';
+
+  let inputOutputs = findExtensionByType(element, 'zeebe:IoMapping');
+
+  if (inputOutputs != undefined) {
+    let inputs = inputOutputs.inputParameters;
+    return tooltipInputOutputMappings('Inputs', inputs)
+  }
+
+  return '';
+}
+
+/**
+ * container for output-mappings
+ */
+function tooltipOutputMappings(element) {
+  if (element.businessObject == undefined) return '';
+
+  let inputOutputs = findExtensionByType(element, 'zeebe:IoMapping');
+
+  if (inputOutputs != undefined) {
+    let outputs = inputOutputs.outputParameters;
+    return tooltipInputOutputMappings('Outputs', outputs)
+  }
+
+  return '';
+}
+
+function tooltipInputOutputMappings(label, parameters) {
+  let lines = [];
+  _.forEach(parameters, function (param) {
+    lines.push(tooltipLineCode(param.target, param.source));
+  })
+
+  return addHeaderRemoveEmptyLinesAndFinalize(label, lines);
 }
