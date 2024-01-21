@@ -354,6 +354,29 @@ function addTooltip(elementOverlays, overlays, element, tooltipId) {
 }
 
 /**
+ * build a complete tooltip-overlay-html, consisting of header, and
+ * detail-containers, if any information is, otherwise show resp. hint.
+ *
+ * some containers are disabled currently, bc. the information is not really needed
+ * to show in tooltip, or can be visualized by other plugins already.
+ */
+function buildTooltipOverlay(element, tooltipId) {
+  return '<div id="' + tooltipId + '" class="tooltip"> \
+              <div class="tooltip-content">'
+      + (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipHeader)(element)
+      + (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.emptyPropertiesIfNoLines)([
+        tooltipDetails(element),
+        tooltipMultiInstance(element),
+        tooltipExternalTaskConfiguration(element), // only needed for C7 models
+        (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element, true),
+        tooltipInputMappings(element),
+        tooltipOutputMappings(element)
+      ])
+      + '</div> \
+            </div>';
+}
+
+/**
  * container for details:
  *  - properties depending on element-type
  *  - e.g. type of implementation
@@ -378,117 +401,6 @@ function tooltipDetails(element) {
 
   return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)('Details', lines);
 }
-
-/**
- * container for multi-instance:
- *  - properties depending multi-instance configuration
- *  - e.g. collection, element variable
- */
-function tooltipMultiInstance(element) {
-  let lines = [];
-  let loopCharacteristics = element.businessObject.loopCharacteristics
-
-  if (loopCharacteristics != undefined) {
-    if (loopCharacteristics.$type != 'bpmn:StandardLoopCharacteristics') {
-      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Multi Instance',
-          element.businessObject.loopCharacteristics.isSequential ? 'sequential'
-              : 'parallel'));
-      if (element.businessObject.loopCharacteristics.loopCardinality
-          != undefined) {
-        lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Loop Cardinality',
-            element.businessObject.loopCharacteristics.loopCardinality.body));
-      }
-      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Collection',
-          element.businessObject.loopCharacteristics.collection));
-      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Element Variable',
-          element.businessObject.loopCharacteristics.elementVariable));
-      if (element.businessObject.loopCharacteristics.completionCondition
-          != undefined) {
-        lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Completion Condition',
-            element.businessObject.loopCharacteristics.completionCondition.body));
-      }
-
-      if (element.businessObject.loopCharacteristics.extensionElements
-          != undefined
-          && element.businessObject.loopCharacteristics.extensionElements.values
-          != undefined) {
-        let extensionElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(
-            element.businessObject.loopCharacteristics.extensionElements.values,
-            'camunda:FailedJobRetryTimeCycle')
-        if (extensionElement != undefined) {
-          lines.push(
-              (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)("MI Retry Time Cycle", extensionElement.body));
-        }
-      }
-    }
-  }
-
-  return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)('Multi Instance', lines);
-}
-
-
-/**
- * container for external task configuration:
- *  - external task priority
- */
-function tooltipExternalTaskConfiguration(element) {
-  if (element.businessObject == undefined) return '';
-  let lines = [];
-  lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Task Priority', element.businessObject.taskPriority));
-  return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)('External Task Configuration', lines);
-}
-
-/**
- * container for input-mappings
- */
-function tooltipInputMappings(element) {
-  if (element.businessObject == undefined) return '';
-
-  let inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
-
-  if (inputOutputs != undefined) {
-    let inputs = inputOutputs.inputParameters;
-    return tooltipInputOutputMappings('Inputs', inputs)
-  }
-
-  return '';
-}
-
-/**
- * container for output-mappings
- */
-function tooltipOutputMappings(element) {
-  if (element.businessObject == undefined) return '';
-
-  let inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
-
-  if (inputOutputs != undefined) {
-    let outputs = inputOutputs.outputParameters;
-    return tooltipInputOutputMappings('Outputs', outputs)
-  }
-
-  return '';
-}
-
-function tooltipInputOutputMappings(label, parameters) {
-  let lines = [];
-  _.forEach(parameters, function (param) {
-    if (param.definition == undefined) {
-      // Type: String / Expression
-      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCodeWithFallback)(param.name, param.value, 'n/a'));
-    } else {
-      // Type: List, Map, Script
-      let inputMappingType = 'unknown Type';
-      if (param.definition.$type == 'camunda:List') { inputMappingType = 'List' }
-      if (param.definition.$type == 'camunda:Map') { inputMappingType = 'Map' }
-      if (param.definition.$type == 'camunda:Script') { inputMappingType = 'Script' }
-      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCode)(param.name, "Type: " + inputMappingType));
-    }
-  })
-
-  return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)(label, lines);
-}
-
 
 /**
  * evaluate service-/send-/rule-tasks
@@ -735,26 +647,112 @@ function evaluateEvents(element, lines) {
 }
 
 /**
- * build a complete tooltip-overlay-html, consisting of header, and
- * detail-containers, if any information is, otherwise show resp. hint.
- *
- * some containers are disabled currently, bc. the information is not really needed
- * to show in tooltip, or can be visualized by other plugins already.
+ * container for multi-instance:
+ *  - properties depending multi-instance configuration
+ *  - e.g. collection, element variable
  */
-function buildTooltipOverlay(element, tooltipId) {
-  return '<div id="' + tooltipId + '" class="tooltip"> \
-              <div class="tooltip-content">'
-      + (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipHeader)(element)
-      + (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.emptyPropertiesIfNoLines)([
-        tooltipDetails(element),
-        tooltipMultiInstance(element),
-        tooltipExternalTaskConfiguration(element), // only needed for C7 models
-        (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element, true),
-        tooltipInputMappings(element),
-        tooltipOutputMappings(element)
-      ])
-      + '</div> \
-            </div>';
+function tooltipMultiInstance(element) {
+  let lines = [];
+  let loopCharacteristics = element.businessObject.loopCharacteristics
+
+  if (loopCharacteristics != undefined) {
+    if (loopCharacteristics.$type != 'bpmn:StandardLoopCharacteristics') {
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Multi Instance',
+          element.businessObject.loopCharacteristics.isSequential ? 'sequential'
+              : 'parallel'));
+      if (element.businessObject.loopCharacteristics.loopCardinality
+          != undefined) {
+        lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Loop Cardinality',
+            element.businessObject.loopCharacteristics.loopCardinality.body));
+      }
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Collection',
+          element.businessObject.loopCharacteristics.collection));
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Element Variable',
+          element.businessObject.loopCharacteristics.elementVariable));
+      if (element.businessObject.loopCharacteristics.completionCondition
+          != undefined) {
+        lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Completion Condition',
+            element.businessObject.loopCharacteristics.completionCondition.body));
+      }
+
+      if (element.businessObject.loopCharacteristics.extensionElements
+          != undefined
+          && element.businessObject.loopCharacteristics.extensionElements.values
+          != undefined) {
+        let extensionElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(
+            element.businessObject.loopCharacteristics.extensionElements.values,
+            'camunda:FailedJobRetryTimeCycle')
+        if (extensionElement != undefined) {
+          lines.push(
+              (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)("MI Retry Time Cycle", extensionElement.body));
+        }
+      }
+    }
+  }
+
+  return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)('Multi Instance', lines);
+}
+
+/**
+ * container for external task configuration:
+ *  - external task priority
+ */
+function tooltipExternalTaskConfiguration(element) {
+  if (element.businessObject == undefined) return '';
+  let lines = [];
+  lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Task Priority', element.businessObject.taskPriority));
+  return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)('External Task Configuration', lines);
+}
+
+/**
+ * container for input-mappings
+ */
+function tooltipInputMappings(element) {
+  if (element.businessObject == undefined) return '';
+
+  let inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
+
+  if (inputOutputs != undefined) {
+    let inputs = inputOutputs.inputParameters;
+    return tooltipInputOutputMappings('Inputs', inputs)
+  }
+
+  return '';
+}
+
+/**
+ * container for output-mappings
+ */
+function tooltipOutputMappings(element) {
+  if (element.businessObject == undefined) return '';
+
+  let inputOutputs = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'camunda:InputOutput');
+
+  if (inputOutputs != undefined) {
+    let outputs = inputOutputs.outputParameters;
+    return tooltipInputOutputMappings('Outputs', outputs)
+  }
+
+  return '';
+}
+
+function tooltipInputOutputMappings(label, parameters) {
+  let lines = [];
+  _.forEach(parameters, function (param) {
+    if (param.definition == undefined) {
+      // Type: String / Expression
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCodeWithFallback)(param.name, param.value, 'n/a'));
+    } else {
+      // Type: List, Map, Script
+      let inputMappingType = 'unknown Type';
+      if (param.definition.$type == 'camunda:List') { inputMappingType = 'List' }
+      if (param.definition.$type == 'camunda:Map') { inputMappingType = 'Map' }
+      if (param.definition.$type == 'camunda:Script') { inputMappingType = 'Script' }
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCode)(param.name, "Type: " + inputMappingType));
+    }
+  })
+
+  return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)(label, lines);
 }
 
 /***/ }),
