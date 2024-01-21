@@ -81,13 +81,18 @@ function tooltipDetails(element) {
  */
 function evaluateServiceSendConnectorTask(element, lines) {
   let taskDefinitionExtension = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, "zeebe:TaskDefinition")
-  let implementationType = element.businessObject.modelerTemplate === undefined ?
-      'External' : 'Connector'
-  lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Implementation', implementationType))
 
-  if (taskDefinitionExtension !== undefined) {
-    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Type', taskDefinitionExtension.type)) // aka topic
-    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Retries', taskDefinitionExtension.retries))
+  if (element.businessObject.modelerTemplate !== undefined) { // connector
+    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Implementation', 'Connector'))
+    if (taskDefinitionExtension !== undefined) {
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Type', taskDefinitionExtension.type)) // aka topic
+    }
+  } else { // service task or send task
+    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Implementation', 'External'))
+    if (taskDefinitionExtension !== undefined) {
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Type', taskDefinitionExtension.type)) // aka topic
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Retries', taskDefinitionExtension.retries))
+    }
   }
 }
 

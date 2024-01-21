@@ -78,13 +78,18 @@ function tooltipDetails(element) {
  */
 function evaluateServiceSendConnectorTask(element, lines) {
   let taskDefinitionExtension = findExtensionByType(element, "zeebe:TaskDefinition")
-  let implementationType = element.businessObject.modelerTemplate === undefined ?
-      'External' : 'Connector'
-  lines.push(tooltipLineText('Implementation', implementationType))
 
-  if (taskDefinitionExtension !== undefined) {
-    lines.push(tooltipLineText('Type', taskDefinitionExtension.type)) // aka topic
-    lines.push(tooltipLineText('Retries', taskDefinitionExtension.retries))
+  if (element.businessObject.modelerTemplate !== undefined) { // connector
+    lines.push(tooltipLineText('Implementation', 'Connector'))
+    if (taskDefinitionExtension !== undefined) {
+      lines.push(tooltipLineText('Type', taskDefinitionExtension.type)) // aka topic
+    }
+  } else { // service task or send task
+    lines.push(tooltipLineText('Implementation', 'External'))
+    if (taskDefinitionExtension !== undefined) {
+      lines.push(tooltipLineText('Type', taskDefinitionExtension.type)) // aka topic
+      lines.push(tooltipLineText('Retries', taskDefinitionExtension.retries))
+    }
   }
 }
 
