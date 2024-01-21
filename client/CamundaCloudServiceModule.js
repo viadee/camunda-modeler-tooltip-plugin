@@ -57,17 +57,17 @@ function tooltipDetails(element) {
   let lines = [];
   let type = element.businessObject.$type;
 
-  if (type == 'bpmn:ServiceTask' || type == 'bpmn:SendTask') evaluateServiceSendConnectorTask(element, lines);
-  if (type == 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
-  if (type == 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
-  if (type == 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
-  if (type == 'bpmn:CallActivity') evaluateCallActivity(element, lines);
-  if (type == 'bpmn:UserTask') evaluateUserTask(element, lines);
-  if (type == 'bpmn:StartEvent'
-      || type == 'bpmn:EndEvent'
-      || type == 'bpmn:IntermediateCatchEvent'
-      || type == 'bpmn:IntermediateThrowEvent'
-      || type == 'bpmn:BoundaryEvent') evaluateEvents(element, lines);
+  if (type === 'bpmn:ServiceTask' || type === 'bpmn:SendTask') evaluateServiceSendConnectorTask(element, lines);
+  if (type === 'bpmn:BusinessRuleTask') evaluateBusinessRuleTask(element, lines);
+  if (type === 'bpmn:ReceiveTask') evaluateReceiveTask(element, lines);
+  if (type === 'bpmn:ScriptTask') evaluateScriptTask(element, lines);
+  if (type === 'bpmn:CallActivity') evaluateCallActivity(element, lines);
+  if (type === 'bpmn:UserTask') evaluateUserTask(element, lines);
+  if (type === 'bpmn:StartEvent'
+      || type === 'bpmn:EndEvent'
+      || type === 'bpmn:IntermediateCatchEvent'
+      || type === 'bpmn:IntermediateThrowEvent'
+      || type === 'bpmn:BoundaryEvent') evaluateEvents(element, lines);
 
   return addHeaderRemoveEmptyLinesAndFinalize('Details', lines);
 }
@@ -112,7 +112,7 @@ function evaluateBusinessRuleTask(element, lines) {
 function evaluateReceiveTask(element, lines) {
   let messageRef = element.businessObject.messageRef
 
-  if (messageRef != undefined) {
+  if (messageRef !== undefined) {
     let subscriptionKeyElement = findExtension(messageRef.extensionElements.values, "zeebe:Subscription")
     lines.push(tooltipLineText('Message Name', element.businessObject.messageRef.name));
     lines.push(tooltipLineText('Subscription Key', subscriptionKeyElement.correlationKey))
@@ -176,73 +176,73 @@ function evaluateUserTask(element, lines) {
 function evaluateEvents(element, lines) {
 
 
-  if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') != undefined) {
+  if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') !== undefined) {
     let eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
-    if (eventDefinition.messageRef != undefined) {
+    if (eventDefinition.messageRef !== undefined) {
       let subscriptionKeyElement = findExtension(eventDefinition.messageRef.extensionElements.values, "zeebe:Subscription")
       lines.push(tooltipLineText('Message Name', eventDefinition.messageRef.name));
       lines.push(tooltipLineText('Subscription Key', subscriptionKeyElement.correlationKey))
     }
 
     let eventExtensionElement = findExtensionByType(element, 'zeebe:TaskDefinition')
-    if (eventExtensionElement != undefined) {
+    if (eventExtensionElement !== undefined) {
       lines.push(tooltipLineText('Implementation', 'External'))
       lines.push(tooltipLineText('Type', eventExtensionElement.type)) // aka topic
       lines.push(tooltipLineText('Retries', eventExtensionElement.retries))
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:LinkEventDefinition') != undefined) {
+  if (findEventDefinitionType(element, 'bpmn:LinkEventDefinition') !== undefined) {
     let eventDefinition = findEventDefinitionType(element, 'bpmn:LinkEventDefinition')
     lines.push(tooltipLineText('Name', eventDefinition.name))
   }
 
   if (findEventDefinitionType(element, 'bpmn:ErrorEventDefinition')) {
     let eventDefinition = findEventDefinitionType(element, 'bpmn:ErrorEventDefinition')
-    if (eventDefinition.errorRef != undefined) {
+    if (eventDefinition.errorRef !== undefined) {
       lines.push(tooltipLineText('Error Name', eventDefinition.errorRef.name))
       lines.push(tooltipLineText('Error Code', eventDefinition.errorRef.errorCode))
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') != undefined) {
+  if (findEventDefinitionType(element, 'bpmn:EscalationEventDefinition') !== undefined) {
     let eventDefinition = findEventDefinitionType(element, 'bpmn:EscalationEventDefinition');
-    if (eventDefinition.escalationRef != undefined) {
+    if (eventDefinition.escalationRef !== undefined) {
       lines.push(tooltipLineText('Escalation Name', eventDefinition.escalationRef.name));
       lines.push(tooltipLineText('Escalation Code', eventDefinition.escalationRef.escalationCode));
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:CompensateEventDefinition') != undefined) {
+  if (findEventDefinitionType(element, 'bpmn:CompensateEventDefinition') !== undefined) {
     if (element.type === 'bpmn:BoundaryEvent') {
       return;
     }
 
     let eventDefinition = findEventDefinitionType(element, 'bpmn:CompensateEventDefinition');
     lines.push(tooltipLineText('Wait for Completion', eventDefinition.waitForCompletion ? _html_ok : _html_nok));
-    if (eventDefinition.activityRef != undefined) {
+    if (eventDefinition.activityRef !== undefined) {
       lines.push(tooltipLineText('Activity Ref', eventDefinition.activityRef.id));
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:SignalEventDefinition') != undefined) {
+  if (findEventDefinitionType(element, 'bpmn:SignalEventDefinition') !== undefined) {
     let eventDefinition = findEventDefinitionType(element, 'bpmn:SignalEventDefinition');
-    if (eventDefinition.signalRef != undefined) {
+    if (eventDefinition.signalRef !== undefined) {
       lines.push(tooltipLineText('Signal Name', eventDefinition.signalRef.name));
     }
   }
 
-  if (findEventDefinitionType(element, 'bpmn:TimerEventDefinition') != undefined) {
+  if (findEventDefinitionType(element, 'bpmn:TimerEventDefinition') !== undefined) {
     let eventDefinition = findEventDefinitionType(element, 'bpmn:TimerEventDefinition');
-    if (eventDefinition.timeDate != undefined) {
+    if (eventDefinition.timeDate !== undefined) {
       lines.push(tooltipLineText('Timer', 'Date'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDate.body));
     }
-    if (eventDefinition.timeCycle != undefined) {
+    if (eventDefinition.timeCycle !== undefined) {
       lines.push(tooltipLineText('Timer', 'Cycle'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeCycle.body));
     }
-    if (eventDefinition.timeDuration != undefined) {
+    if (eventDefinition.timeDuration !== undefined) {
       lines.push(tooltipLineText('Timer', 'Duration'));
       lines.push(tooltipLineText('Timer Definition', eventDefinition.timeDuration.body));
     }
@@ -258,13 +258,13 @@ function tooltipMultiInstance(element) {
   let lines = [];
   let loopCharacteristics = element.businessObject.loopCharacteristics
 
-  if (loopCharacteristics != undefined) {
-    if (loopCharacteristics.$type != 'bpmn:StandardLoopCharacteristics') {
+  if (loopCharacteristics !== undefined) {
+    if (loopCharacteristics.$type !== 'bpmn:StandardLoopCharacteristics') {
       lines.push(tooltipLineText('Multi Instance', loopCharacteristics.isSequential ? 'sequential' : 'parallel'));
 
-      if (loopCharacteristics.extensionElements != undefined) {
+      if (loopCharacteristics.extensionElements !== undefined) {
         let loopCharacteristicsElement = findExtension(loopCharacteristics.extensionElements.values, 'zeebe:LoopCharacteristics')
-        if (loopCharacteristicsElement != undefined) {
+        if (loopCharacteristicsElement !== undefined) {
           lines.push(tooltipLineText('Input Collection', loopCharacteristicsElement.inputCollection));
           lines.push(tooltipLineText('Input Element', loopCharacteristicsElement.inputElement));
           lines.push(tooltipLineText('Output Collection', loopCharacteristicsElement.outputCollection));
@@ -272,7 +272,7 @@ function tooltipMultiInstance(element) {
         }
       }
 
-      if (loopCharacteristics.completionCondition != undefined) {
+      if (loopCharacteristics.completionCondition !== undefined) {
         lines.push(tooltipLineText('Completion Condition', loopCharacteristics.completionCondition.body));
       }
     }
@@ -285,11 +285,11 @@ function tooltipMultiInstance(element) {
  * container for input-mappings
  */
 function tooltipInputMappings(element) {
-  if (element.businessObject == undefined) return '';
+  if (element.businessObject === undefined) return '';
 
   let inputOutputs = findExtensionByType(element, 'zeebe:IoMapping');
 
-  if (inputOutputs != undefined) {
+  if (inputOutputs !== undefined) {
     let inputs = inputOutputs.inputParameters;
     return tooltipInputOutputMappings('Inputs', inputs)
   }
@@ -301,11 +301,11 @@ function tooltipInputMappings(element) {
  * container for output-mappings
  */
 function tooltipOutputMappings(element) {
-  if (element.businessObject == undefined) return '';
+  if (element.businessObject === undefined) return '';
 
   let inputOutputs = findExtensionByType(element, 'zeebe:IoMapping');
 
-  if (inputOutputs != undefined) {
+  if (inputOutputs !== undefined) {
     let outputs = inputOutputs.outputParameters;
     return tooltipInputOutputMappings('Outputs', outputs)
   }

@@ -36,7 +36,7 @@ export function tooltipHeader(element) {
  */
 export function emptyPropertiesIfNoLines(lines) {
   let final = _.without(lines, "");
-  if (final.length == 0) {
+  if (final.length === 0) {
     return `<div class="tooltip-no-properties">${_html_no_properties_found}</div>`;
   }
   return final.join('');
@@ -51,32 +51,32 @@ export function tooltipConditionalOutgoingSequenceFlows(element, isC7Model) {
   let isSupportedGateway = isC7Model ? supportedC7ConditionalGateways.includes(element.type) :
       supportedC8ConditionalGateways.includes(element.type)
 
-  if (element.outgoing == undefined || !isSupportedGateway) return '';
+  if (element.outgoing === undefined || !isSupportedGateway) return '';
 
   let html = '<div class="tooltip-container"> \
                   <div class="tooltip-subheader">Conditional Sequence-Flows</div>';
 
-  if (element.businessObject.default != undefined) {
+  if (element.businessObject.default !== undefined) {
     defaultFlow = element.businessObject.default.id;
   }
 
   _.each(element.outgoing, function (outgoingFlow) {
-    if (outgoingFlow.id == defaultFlow) {
+    if (outgoingFlow.id === defaultFlow) {
       // default flow (there is only one)
       html += tooltipLineText((outgoingFlow.businessObject.name || _html_na),  + '<br />' + 'default');
 
-    } else if (outgoingFlow.businessObject.conditionExpression == undefined) {
+    } else if (outgoingFlow.businessObject.conditionExpression === undefined) {
       // no expression given
       html += tooltipLineText((outgoingFlow.businessObject.name || _html_na), '<br />' + _html_na);
 
     } else {
       // conditional / script flows
       let scriptFormat = outgoingFlow.businessObject.conditionExpression.language;
-      if (scriptFormat != undefined) { // only relevant for C7 models
+      if (scriptFormat !== undefined) { // only relevant for C7 models
         let scriptFormatToBeDisplayed = scriptFormat.trim().length > 0 ? scriptFormat : 'Not Selected'
         let conditionalScript = '<br />' + 'Script Format: ' + scriptFormatToBeDisplayed + '<br />'
 
-        if (outgoingFlow.businessObject.conditionExpression.resource != undefined) {
+        if (outgoingFlow.businessObject.conditionExpression.resource !== undefined) {
           conditionalScript += 'Script Type: ' + 'External Resource' + '<br />'
           conditionalScript += outgoingFlow.businessObject.conditionExpression.resource
         } else {
@@ -107,11 +107,11 @@ export function tooltipConditionalOutgoingSequenceFlows(element, isC7Model) {
  */
 
 function checkExtensionElementsAvailable(element) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.extensionElements == undefined
-      || element.businessObject.extensionElements.values == undefined
-      || element.businessObject.extensionElements.values.length == 0)
+  if (element === undefined
+      || element.businessObject === undefined
+      || element.businessObject.extensionElements === undefined
+      || element.businessObject.extensionElements.values === undefined
+      || element.businessObject.extensionElements.values.length === 0)
     return false;
 
   return true;
@@ -125,7 +125,7 @@ export function findExtensionByType(element, type) {
 }
 
 export function findExtension(values, type) {
-  return _.find(values, function (value) { return value.$type == type; });
+  return _.find(values, function (value) { return value.$type === type; });
 }
 
 
@@ -134,17 +134,17 @@ export function findBusinessKey(element) {
 
   return _.find(element.businessObject.extensionElements.values,
       function (value) {
-        return value.$type == 'camunda:In' && value.businessKey != undefined
+        return value.$type === 'camunda:In' && value.businessKey !== undefined
       });
 }
 
 export function findEventDefinitionType(element, type) {
-  if (element == undefined
-      || element.businessObject == undefined
-      || element.businessObject.eventDefinitions == undefined
-      || element.businessObject.eventDefinitions.length == 0)
+  if (element === undefined
+      || element.businessObject === undefined
+      || element.businessObject.eventDefinitions === undefined
+      || element.businessObject.eventDefinitions.length === 0)
     return undefined;
-  return _.find(element.businessObject.eventDefinitions, function (value) { return value.$type == type; });
+  return _.find(element.businessObject.eventDefinitions, function (value) { return value.$type === type; });
 }
 
 /* >-- methods to assemble tooltip lines --< */
@@ -167,7 +167,7 @@ export function tooltipLineCode(key, value) {
  * add a single tooltip line as 'code'
  */
 export function tooltipLineCodeWithFallback(key, value, fallback) {
-  if (value == undefined) {
+  if (value === undefined) {
     return tooltipLineCode(key, fallback);
   } else {
     return tooltipLineCode(key, value);
@@ -179,7 +179,7 @@ export function tooltipLineCodeWithFallback(key, value, fallback) {
  * like: <div><span>key: </span><span class="css">value</span></div>
  */
 function tooltipLineWithCss(key, value, css) {
-  if (value == undefined) return '';
+  if (value === undefined) return '';
   return `<div class="tooltip-line"><span class="tooltip-key">${key}:&nbsp;</span><span class="tooltip-value ${css}">${value}</span></div>`;
 }
 
@@ -189,7 +189,7 @@ function tooltipLineWithCss(key, value, css) {
  */
 export function addHeaderRemoveEmptyLinesAndFinalize(subheader, lines) {
   let final = _.without(lines, "");
-  if (final.length == 0) return '';
+  if (final.length === 0) return '';
 
   let html = '<div class="tooltip-container"> \
                   <div class="tooltip-subheader">' + subheader + '</div>';
