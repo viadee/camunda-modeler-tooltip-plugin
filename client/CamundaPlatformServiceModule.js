@@ -232,8 +232,6 @@ function evaluateEvents(element, lines) {
   }
 
   if (findEventDefinitionType(element, 'bpmn:LinkEventDefinition') !== undefined) {
-    console.log("LinkEventDefinition" + element.type)
-
     let eventDefinition = findEventDefinitionType(element, 'bpmn:LinkEventDefinition')
     lines.push(tooltipLineText('Name', eventDefinition.name))
   }

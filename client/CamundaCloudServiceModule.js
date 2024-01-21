@@ -40,7 +40,8 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipMultiInstance(element),
         tooltipConditionalOutgoingSequenceFlows(element, false),
         tooltipInputMappings(element),
-        tooltipOutputMappings(element)
+        tooltipOutputMappings(element),
+        tooltipHeaderMappings(element)
       ])
       + '</div> \
             </div>';
@@ -291,7 +292,7 @@ function tooltipInputMappings(element) {
 
   if (inputOutputs !== undefined) {
     let inputs = inputOutputs.inputParameters;
-    return tooltipInputOutputMappings('Inputs', inputs)
+    return addInputOutputMappings('Inputs', inputs)
   }
 
   return '';
@@ -307,17 +308,43 @@ function tooltipOutputMappings(element) {
 
   if (inputOutputs !== undefined) {
     let outputs = inputOutputs.outputParameters;
-    return tooltipInputOutputMappings('Outputs', outputs)
+    return addInputOutputMappings('Outputs', outputs)
   }
 
   return '';
 }
 
-function tooltipInputOutputMappings(label, parameters) {
+function addInputOutputMappings(label, parameters) {
   let lines = [];
   _.forEach(parameters, function (param) {
     lines.push(tooltipLineCode(param.target, param.source));
   })
 
   return addHeaderRemoveEmptyLinesAndFinalize(label, lines);
+}
+
+/**
+ * container for header-mappings
+ */
+function tooltipHeaderMappings(element) {
+  if (element.businessObject === undefined) return '';
+
+  let headers = findExtensionByType(element, 'zeebe:TaskHeaders')
+
+  if (headers !== undefined) {
+    let headerValues = headers.values
+    return addHeaderMappings(headerValues)
+  }
+
+  return ''
+
+}
+
+function addHeaderMappings(parameters) {
+  let lines = [];
+  _.forEach(parameters, function (param) {
+    lines.push(tooltipLineCode(param.key, param.value));
+  })
+
+  return addHeaderRemoveEmptyLinesAndFinalize('Headers', lines);
 }

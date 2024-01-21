@@ -43,7 +43,8 @@ function buildTooltipOverlay(element, tooltipId) {
         tooltipMultiInstance(element),
         (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipConditionalOutgoingSequenceFlows)(element, false),
         tooltipInputMappings(element),
-        tooltipOutputMappings(element)
+        tooltipOutputMappings(element),
+        tooltipHeaderMappings(element)
       ])
       + '</div> \
             </div>';
@@ -294,7 +295,7 @@ function tooltipInputMappings(element) {
 
   if (inputOutputs !== undefined) {
     let inputs = inputOutputs.inputParameters;
-    return tooltipInputOutputMappings('Inputs', inputs)
+    return addInputOutputMappings('Inputs', inputs)
   }
 
   return '';
@@ -310,19 +311,45 @@ function tooltipOutputMappings(element) {
 
   if (inputOutputs !== undefined) {
     let outputs = inputOutputs.outputParameters;
-    return tooltipInputOutputMappings('Outputs', outputs)
+    return addInputOutputMappings('Outputs', outputs)
   }
 
   return '';
 }
 
-function tooltipInputOutputMappings(label, parameters) {
+function addInputOutputMappings(label, parameters) {
   let lines = [];
   _.forEach(parameters, function (param) {
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCode)(param.target, param.source));
   })
 
   return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)(label, lines);
+}
+
+/**
+ * container for header-mappings
+ */
+function tooltipHeaderMappings(element) {
+  if (element.businessObject === undefined) return '';
+
+  let headers = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'zeebe:TaskHeaders')
+
+  if (headers !== undefined) {
+    let headerValues = headers.values
+    return addHeaderMappings(headerValues)
+  }
+
+  return ''
+
+}
+
+function addHeaderMappings(parameters) {
+  let lines = [];
+  _.forEach(parameters, function (param) {
+    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineCode)(param.key, param.value));
+  })
+
+  return (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.addHeaderRemoveEmptyLinesAndFinalize)('Headers', lines);
 }
 
 /***/ }),
@@ -559,8 +586,6 @@ function evaluateEvents(element, lines) {
   }
 
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:LinkEventDefinition') !== undefined) {
-    console.log("LinkEventDefinition" + element.type)
-
     let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:LinkEventDefinition')
     lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Name', eventDefinition.name))
   }
