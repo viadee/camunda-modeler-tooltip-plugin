@@ -122,9 +122,11 @@ function evaluateReceiveTask(element, lines) {
   let messageRef = element.businessObject.messageRef
 
   if (messageRef !== undefined) {
-    let subscriptionKeyElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(messageRef.extensionElements.values, "zeebe:Subscription")
-    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Message Name', element.businessObject.messageRef.name));
-    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Subscription Key', subscriptionKeyElement.correlationKey))
+    lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Message Name', messageRef.name));
+    if (messageRef.extensionElements !== undefined) {
+      let subscriptionKeyElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(messageRef.extensionElements.values, "zeebe:Subscription")
+      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Subscription Key', subscriptionKeyElement.correlationKey))
+    }
   }
 }
 
@@ -188,9 +190,11 @@ function evaluateEvents(element, lines) {
   if ((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition') !== undefined) {
     let eventDefinition = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findEventDefinitionType)(element, 'bpmn:MessageEventDefinition');
     if (eventDefinition.messageRef !== undefined) {
-      let subscriptionKeyElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(eventDefinition.messageRef.extensionElements.values, "zeebe:Subscription")
       lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Message Name', eventDefinition.messageRef.name));
-      lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Subscription Key', subscriptionKeyElement.correlationKey))
+      if (eventDefinition.messageRef.extensionElements !== undefined) {
+        let subscriptionKeyElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtension)(eventDefinition.messageRef.extensionElements.values, "zeebe:Subscription")
+        lines.push((0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.tooltipLineText)('Subscription Key', subscriptionKeyElement.correlationKey))
+      }
     }
 
     let eventExtensionElement = (0,_GeneralServiceModule__WEBPACK_IMPORTED_MODULE_0__.findExtensionByType)(element, 'zeebe:TaskDefinition')

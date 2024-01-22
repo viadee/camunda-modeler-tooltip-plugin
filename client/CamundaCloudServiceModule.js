@@ -119,9 +119,11 @@ function evaluateReceiveTask(element, lines) {
   let messageRef = element.businessObject.messageRef
 
   if (messageRef !== undefined) {
-    let subscriptionKeyElement = findExtension(messageRef.extensionElements.values, "zeebe:Subscription")
-    lines.push(tooltipLineText('Message Name', element.businessObject.messageRef.name));
-    lines.push(tooltipLineText('Subscription Key', subscriptionKeyElement.correlationKey))
+    lines.push(tooltipLineText('Message Name', messageRef.name));
+    if (messageRef.extensionElements !== undefined) {
+      let subscriptionKeyElement = findExtension(messageRef.extensionElements.values, "zeebe:Subscription")
+      lines.push(tooltipLineText('Subscription Key', subscriptionKeyElement.correlationKey))
+    }
   }
 }
 
@@ -185,9 +187,11 @@ function evaluateEvents(element, lines) {
   if (findEventDefinitionType(element, 'bpmn:MessageEventDefinition') !== undefined) {
     let eventDefinition = findEventDefinitionType(element, 'bpmn:MessageEventDefinition');
     if (eventDefinition.messageRef !== undefined) {
-      let subscriptionKeyElement = findExtension(eventDefinition.messageRef.extensionElements.values, "zeebe:Subscription")
       lines.push(tooltipLineText('Message Name', eventDefinition.messageRef.name));
-      lines.push(tooltipLineText('Subscription Key', subscriptionKeyElement.correlationKey))
+      if (eventDefinition.messageRef.extensionElements !== undefined) {
+        let subscriptionKeyElement = findExtension(eventDefinition.messageRef.extensionElements.values, "zeebe:Subscription")
+        lines.push(tooltipLineText('Subscription Key', subscriptionKeyElement.correlationKey))
+      }
     }
 
     let eventExtensionElement = findExtensionByType(element, 'zeebe:TaskDefinition')
